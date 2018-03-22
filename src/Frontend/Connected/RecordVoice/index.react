@@ -1,0 +1,70 @@
+import React from "react";
+
+import Button from "direct-core/UI/Button";
+
+class RecordVoice extends React.PureComponent {
+
+  chuncks = []
+
+  componentDidMount(){
+    navigator.mediaDevices.getUserMedia({
+      audio: true
+    }).then( stream => {
+      this.mediaRecorder = new MediaRecorder( stream )
+      this.mediaRecorder.ondataavailable = e => {
+        console.log( e )
+        this.chuncks.push( e.data )
+        console.log( this.chuncks )
+      }
+
+    }).catch( err => {
+      console.log( err );
+    })
+  }
+
+  getAudio = ref => this.audio = ref
+
+  startRecord = () => {
+    this.mediaRecorder.start();
+    console.log("start recording");
+  }
+
+  stopRecord = () => {
+    this.mediaRecorder.stop();
+    console.log("stop recording, chucnks now:" );
+  }
+
+  mergeRecords = () => {
+    var blob = new Blob( this.chuncks , {
+      type: "audio/ogg;codecs=opus"
+    });
+    this.chucnks = []
+    var audioURL = URL.createObjectURL( blob );
+    this.audio.src = audioURL;
+  }
+
+  render(){
+    return (
+      <React.Fragment>
+        <Button
+          onClick={this.startRecord}
+          text="开始"
+        />
+        <Button
+          onClick={this.stopRecord}
+          text="停止"
+        />
+        <Button
+          onClick={this.mergeRecords}
+          text="合成"
+        />
+        <audio
+          controls
+          ref={this.getAudio}
+        />
+      </React.Fragment>
+    )
+  }
+};
+
+export default RecordVoice;

@@ -1,0 +1,19 @@
+import React from "react"
+
+import applyHOCs from "direct-core/applyHOCs";
+
+import makePage from "direct-core/makePage"
+
+import RecordVoice from "Connected/RecordVoice";
+
+class TestPage extends React.PureComponent {
+  render(){
+    return (
+      <RecordVoice />
+    )
+  }
+}
+
+export default applyHOCs([
+  makePage
+] , TestPage );
