@@ -4,35 +4,34 @@ import Button from "direct-core/UI/Button";
 
 class RecordVoice extends React.PureComponent {
 
-  chuncks = []
+  chunks = []
   reader = new FileReader()
 
+  state = {
+    audios: []
+  }
+
+  makeNewClip({ clip ,  sum , mostOccured , occuredTime }){
+    const oldAudios = [...this.state.audios];
+    oldAudios.push({
+      clip,
+      sum,
+      mostOccured,
+      occuredTime
+    });
+    this.setState({
+      audios: oldAudios
+    })
+  }
+
   componentDidMount(){
-
-    this.reader.onloadend = () => {
-      let count = []
-      for( let r of new Int8Array( this.reader.result ) ){
-        count[r] === undefined ? count[r] = 0 : count[r]++
-      }
-      //console.log( count );
-      let max = -Infinity;
-      let index = 0;
-      for( let i = 0 ; i < count.length ; i++ ){
-        if( count[i] > max ){
-          max = count[i]
-          index = i;
-        }
-      }
-      console.log( index , max );
-    }
-
     navigator.mediaDevices.getUserMedia({
       audio: true
     }).then( stream => {
         this.mediaRecorder = new MediaRecorder( stream )
         this.mediaRecorder.ondataavailable = ev => {
-        this.chuncks.push( ev.data )
-        this.analysis( new Blob( [ev.data] ) );
+        this.chunks.push( ev.data )
+        this.analysis( new Blob( [ev.data] , { type: "audio/ogg" } ) );
       }
 
     }).catch( err => {
@@ -44,6 +43,29 @@ class RecordVoice extends React.PureComponent {
 
   analysis( data ){
     this.reader.readAsArrayBuffer( data )
+    this.reader.onloadend = () => {
+      let count = []
+      let sum = 0
+      let occuredTime = -Infinity;
+      let mostOccured = 0;
+      for( let r of new Int8Array( this.reader.result ) ){
+        count[r] === undefined ? count[r] = 0 : count[r]++
+        sum += r
+      }
+      for( let i = 0 ; i < count.length ; i++ ){
+        if( count[i] > occuredTime ){
+          occuredTime = count[i]
+          mostOccured = i;
+        }
+      }
+      this.makeNewClip({
+        clip: URL.createObjectURL( data ),
+        sum,
+        mostOccured,
+        occuredTime
+      })
+    }
+
   }
 
   startRecord = () => {
@@ -51,25 +73,35 @@ class RecordVoice extends React.PureComponent {
       return
     }
     this.mediaRecorder.start();
-    setTimeout( this.stopRecord , 600 );
+    setTimeout( this.cutRecord , 600 );
   }
 
-  stopRecord = () => {
+  cutRecord = () => {
     this.mediaRecorder.stop();
     this.startRecord();
   }
 
+  stopReord = () => {
+    if( this.mediaRecorder.stat === "inactive" ){
+      return
+    }
+    this.mediaRecorder.stop();
+  }
+
   mergeRecords = () => {
-    var blob = new Blob( this.chuncks );
+    var blob = new Blob( this.chunks , {
+      type: "audio/ogg"
+    });
 
     console.log( blob );
-    console.log( this.chuncks );
-    this.chuncks = [];
+    console.log( this.chunks );
+    this.chunks = [];
     var audioURL = URL.createObjectURL( blob );
     this.audio.src = audioURL;
   }
 
   render(){
+    const { audios } = this.state;
     return (
       <React.Fragment>
         <Button
@@ -80,10 +112,31 @@ class RecordVoice extends React.PureComponent {
           onClick={this.mergeRecords}
           text="合成"
         />
-        <audio
-          controls
-          ref={this.getAudio}
+        <Button
+          onClick={this.stopReord}
+          text="终止"
         />
+        <div>
+          <span>Main audio</span>
+          <audio
+            controls
+            ref={this.getAudio}
+          />
+        </div>
+        {
+          audios.map( audio => (
+            <div key={audio.clip}>
+              <audio
+                controls
+                src={audio.clip}
+              />
+              <br/>
+              <span>Sum:{audio.sum}</span><br/>
+              <span>mostOccured:{audio.mostOccured}</span><br/>
+              <span>occuredTime:{audio.occuredTime}</span><br/>
+            </div>
+          ))
+        }
       </React.Fragment>
     )
   }
