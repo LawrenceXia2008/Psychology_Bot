@@ -1,4 +1,4 @@
-//import { reducer as UserManager } from 'Connected/UserManager';
+import { reducer as UserAuth } from 'Connected/UserAuth';
 export default {
-  //UserManager,
+  UserAuth
 };

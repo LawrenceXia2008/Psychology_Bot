@@ -3,6 +3,8 @@ import React from "react";
 import applyHOCs from "direct-core/applyHOCs";
 import makePage from "direct-core/makePage";
 
+import { Link } from "react-router-dom";
+
 class IndexPage extends React.PureComponent {
 
   render(){
@@ -19,6 +21,7 @@ class IndexPage extends React.PureComponent {
         >
         default 404 Page
       </h2>
+      <Link to="/test">test</Link>
       </React.Fragment>
     );
   }

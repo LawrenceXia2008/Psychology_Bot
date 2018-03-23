@@ -6,6 +6,8 @@ import makePage from "direct-core/makePage"
 
 import RecordVoice from "Connected/RecordVoice";
 
+//import { view as Login } from "Connected/UserAuth";
+
 class TestPage extends React.PureComponent {
   render(){
     return (

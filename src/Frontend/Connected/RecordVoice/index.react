@@ -5,16 +5,34 @@ import Button from "direct-core/UI/Button";
 class RecordVoice extends React.PureComponent {
 
   chuncks = []
+  reader = new FileReader()
 
   componentDidMount(){
+
+    this.reader.onloadend = () => {
+      let count = []
+      for( let r of new Int8Array( this.reader.result ) ){
+        count[r] === undefined ? count[r] = 0 : count[r]++
+      }
+      //console.log( count );
+      let max = -Infinity;
+      let index = 0;
+      for( let i = 0 ; i < count.length ; i++ ){
+        if( count[i] > max ){
+          max = count[i]
+          index = i;
+        }
+      }
+      console.log( index , max );
+    }
+
     navigator.mediaDevices.getUserMedia({
       audio: true
     }).then( stream => {
-      this.mediaRecorder = new MediaRecorder( stream )
-      this.mediaRecorder.ondataavailable = e => {
-        console.log( e )
-        this.chuncks.push( e.data )
-        console.log( this.chuncks )
+        this.mediaRecorder = new MediaRecorder( stream )
+        this.mediaRecorder.ondataavailable = ev => {
+        this.chuncks.push( ev.data )
+        this.analysis( new Blob( [ev.data] ) );
       }
 
     }).catch( err => {
@@ -24,21 +42,29 @@ class RecordVoice extends React.PureComponent {
 
   getAudio = ref => this.audio = ref
 
+  analysis( data ){
+    this.reader.readAsArrayBuffer( data )
+  }
+
   startRecord = () => {
+    if( this.mediaRecorder.state === "recording" ){
+      return
+    }
     this.mediaRecorder.start();
-    console.log("start recording");
+    setTimeout( this.stopRecord , 600 );
   }
 
   stopRecord = () => {
     this.mediaRecorder.stop();
-    console.log("stop recording, chucnks now:" );
+    this.startRecord();
   }
 
   mergeRecords = () => {
-    var blob = new Blob( this.chuncks , {
-      type: "audio/ogg;codecs=opus"
-    });
-    this.chucnks = []
+    var blob = new Blob( this.chuncks );
+
+    console.log( blob );
+    console.log( this.chuncks );
+    this.chuncks = [];
     var audioURL = URL.createObjectURL( blob );
     this.audio.src = audioURL;
   }
@@ -49,10 +75,6 @@ class RecordVoice extends React.PureComponent {
         <Button
           onClick={this.startRecord}
           text="开始"
-        />
-        <Button
-          onClick={this.stopRecord}
-          text="停止"
         />
         <Button
           onClick={this.mergeRecords}

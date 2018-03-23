@@ -12,6 +12,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "simple-direct": "^1.0.6"
+    "simple-direct": "^1.0.7"
   }
 }
