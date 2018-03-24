@@ -32,12 +32,12 @@ function volumeAudioProcess( event ) {
   }
 
   // ... then take the square root of the sum.
-  var rms = Math.sqrt( sum / bufLength );
-
+  const rms = Math.sqrt( sum / bufLength );
+  this.volume = rms;
   // Now smooth this out with the averaging factor applied
   // to the previous sample - take the max here because we
   // want "fast attack, slow release."
-  this.volume = Math.max( rms , this.volume * this.averaging );
+  //this.volume = Math.max( rms , this.volume * this.averaging );
 }
 
 
@@ -53,11 +53,14 @@ the process is like this:
 8. and a new block with header will be called out with new data
 9.
 */
-class RecordVoice extends React.PureComponent {
+class RecordVoice extends React.Component {
   chunks = []
   allClips = []
   lastVolume = 0
   noSoundFor = 0
+  state = {
+    clips: []
+  }
 
   constructor( props ){
     super( props );
@@ -84,12 +87,15 @@ class RecordVoice extends React.PureComponent {
     const mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() )
     this.meter = createAudioMeter( audioCtx );
     mediaStreamSource.connect( this.meter )
-    setInterval( this.streamAnalysis , 1 )
+    setInterval( this.streamAnalysis , 10 )
   }
 
   streamAnalysis = () => {
+    /*
+    called every 10ms
+    */
     if( this.meter.volume <= 0.05 ){
-      this.noSoundFor++;
+      this.noSoundFor += 10;
       if( this.noSoundFor > 1000 ){
         this.mergeRecords();
       }
@@ -175,6 +181,12 @@ class RecordVoice extends React.PureComponent {
     this.noSoundFor = 0;
   }
 
+  debug = () => {
+    this.setState({
+      clips: this.allClips
+    })
+  }
+
   render(){
     return (
       <React.Fragment>
@@ -190,12 +202,25 @@ class RecordVoice extends React.PureComponent {
           onClick={this.stopReord}
           text="终止"
         />
+        <Button
+          onClick={this.debug}
+          text="debug"
+        />
         <div>
           <span>Main audio</span>
           <audio
             controls
             ref={this.getAudio}
           />
+          {
+            this.state.clips.map( clip => (
+              <audio
+                key={clip}
+                controls
+                src={clip}
+              />
+            ))
+          }
         </div>
       </React.Fragment>
     )
