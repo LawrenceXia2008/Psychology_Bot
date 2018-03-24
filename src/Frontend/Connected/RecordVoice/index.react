@@ -2,44 +2,7 @@ import React from "react";
 
 import Button from "direct-core/UI/Button";
 
-function createAudioMeter( audioContext , averaging = 0.95 ) {
-	var processor = audioContext.createScriptProcessor( 512 );
-	processor.onaudioprocess = volumeAudioProcess;
-	processor.volume = 0;
-	processor.averaging = averaging;
-
-	// this will have no effect, since we don't copy the input to the output,
-	// but works around a current Chrome bug.
-	processor.connect( audioContext.destination );
-
-	return processor;
-}
-
-function volumeAudioProcess( event ) {
-	const buf = event.inputBuffer.getChannelData(0);
-  const bufLength = buf.length;
-	var sum = 0;
-  var x;
-
-	// Do a root-mean-square on the samples: sum up the squares...
-  for( let i = 0; i < bufLength ; i++ ){
-  	x = buf[i];
-  	if( Math.abs( x ) >= this.clipLevel ){
-  		this.clipping = true;
-      this.lastClip = Date.now()
-  	}
-  	sum += x * x;
-  }
-
-  // ... then take the square root of the sum.
-  const rms = Math.sqrt( sum / bufLength );
-  this.volume = rms;
-  // Now smooth this out with the averaging factor applied
-  // to the previous sample - take the max here because we
-  // want "fast attack, slow release."
-  //this.volume = Math.max( rms , this.volume * this.averaging );
-}
-
+var processingTime = 0;
 
 /*
 the process is like this:
@@ -53,14 +16,18 @@ the process is like this:
 8. and a new block with header will be called out with new data
 9.
 */
-class RecordVoice extends React.Component {
+class AutoCatchAudio extends React.Component {
   chunks = []
   allClips = []
   lastVolume = 0
   noSoundFor = 0
+  startTalk = false
+  overAllProcessTime = 0
   state = {
     clips: []
   }
+
+  getAudio = ref => this.audio = ref
 
   constructor( props ){
     super( props );
@@ -80,28 +47,70 @@ class RecordVoice extends React.Component {
     })
   }
 
-  getAudio = ref => this.audio = ref
+
+
 
   perpareStreamAnalysis = ( stream ) => {
     const audioCtx = new AudioContext();
-    const mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() )
-    this.meter = createAudioMeter( audioCtx );
-    mediaStreamSource.connect( this.meter )
+    const mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() );
+    var processor = audioCtx.createScriptProcessor();
+
+  	processor.onaudioprocess = ( event ) => {
+    	const buf = event.inputBuffer.getChannelData( 0 );
+      const length = buf.length;
+    	var sum = 0;
+      var x;
+      processingTime++;
+      this.overAllProcessTime++;
+    	// Do a root-mean-square on the samples: sum up the squares...
+      for( let i = 0; i < length ; i++ ){
+      	x = buf[i];
+      	sum += x * x;
+      }
+
+      const rms = Math.sqrt( sum / length );
+      processor.volume += rms;
+    }
+
+  	processor.volume = 0;
+    // no effect
+
+    this.meter = processor;
+
+    mediaStreamSource.connect( this.meter );
+    processor.connect( audioCtx.destination );
     setInterval( this.streamAnalysis , 10 )
   }
 
+  /*
+  called every 10ms
+  */
   streamAnalysis = () => {
-    /*
-    called every 10ms
-    */
-    if( this.meter.volume <= 0.05 ){
+    if( !this.overAllProcessTime ){
+      return
+    }
+    //console.log( this.startTalk , this.meter.volume / this.overAllProcessTime );
+    if( !this.startTalk ){
+      if( this.meter.volume / this.overAllProcessTime >= 0.05 ){
+        this.startTalk = true;
+      }
+      this.overAllProcessTime = this.meter.volume = 0;
+      return
+    }
+
+    if( this.meter.volume / this.overAllProcessTime <= 0.05 ){
       this.noSoundFor += 10;
       if( this.noSoundFor > 1000 ){
-        this.mergeRecords();
+        if( this.startTalk ){
+          this.mergeRecords();
+          this.startTalk = false;
+        }
       }
     } else {
       this.noSoundFor = 0;
     }
+    this.overAllProcessTime = 1;
+    this.meter.volume = 0;
   }
 
   onBlockEnd = () => {
@@ -109,22 +118,22 @@ class RecordVoice extends React.Component {
     this.isLastBlockStop = false;
   }
 
-  dataProcess = ( ev ) => {
-    /*
-    this will be called every 600ms with a start block , a data block or a end block
-    when merging , it must be start-data-data-....-data-end
-    so merge function must be excuted here
-    and mergeRecords is just a request
-    so , if requested , and last block is not a end block,
-    this function will immediately call this.stopReord
-    which implements the stop of the record and set a signal
-    which indicates last block is triggered as stop block
-    after merge , all flags are reset
-    if no merge request , this function just collect every new block
+  /*
+  this will be called every 600ms with a start block , a data block or a end block
+  when merging , it must be start-data-data-....-data-end
+  so merge function must be excuted here
+  and mergeRecords is just a request
+  so , if requested , and last block is not a end block,
+  this function will immediately call this.stopReord
+  which implements the stop of the record and set a signal
+  which indicates last block is triggered as stop block
+  after merge , all flags are reset
+  if no merge request , this function just collect every new block
 
-    in a complete system, a merge request will be fired when user haven't
-    talk for 1000 ms
-    */
+  in a complete system, a merge request will be fired when user haven't
+  talk for 1000 ms
+  */
+  dataProcess = ( ev ) => {
     this.chunks.push( ev.data )
     if( this.requestMerge ){
       if( !this.isLastBlockStop ){
@@ -136,8 +145,6 @@ class RecordVoice extends React.Component {
         var blob = new Blob( this.chunks , {
           type: "audio/ogg; codecs=opus"
         });
-        console.log( blob );
-        console.log( this.chunks )
         this.chunks = [];
         var audioURL = URL.createObjectURL( blob );
         this.allClips.push( audioURL );
@@ -185,6 +192,7 @@ class RecordVoice extends React.Component {
     this.setState({
       clips: this.allClips
     })
+    console.log( processingTime );
   }
 
   render(){
@@ -196,7 +204,7 @@ class RecordVoice extends React.Component {
         />
         <Button
           onClick={this.mergeRecords}
-          text="合成"
+          text="强制合成"
         />
         <Button
           onClick={this.stopReord}
@@ -227,4 +235,4 @@ class RecordVoice extends React.Component {
   }
 };
 
-export default RecordVoice;
+export default AutoCatchAudio;
