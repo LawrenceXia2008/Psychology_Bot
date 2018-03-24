@@ -2,54 +2,37 @@ import React from "react";
 
 import Button from "direct-core/UI/Button";
 
-function createAudioMeter(audioContext,clipLevel,averaging,clipLag) {
-	var processor = audioContext.createScriptProcessor(512);
+function createAudioMeter( audioContext , averaging = 0.95 ) {
+	var processor = audioContext.createScriptProcessor( 512 );
 	processor.onaudioprocess = volumeAudioProcess;
-	processor.clipping = false;
-	processor.lastClip = 0;
 	processor.volume = 0;
-	processor.clipLevel = clipLevel || 0.98;
-	processor.averaging = averaging || 0.95;
-	processor.clipLag = clipLag || 750;
+	processor.averaging = averaging;
 
 	// this will have no effect, since we don't copy the input to the output,
 	// but works around a current Chrome bug.
-	processor.connect(audioContext.destination);
+	processor.connect( audioContext.destination );
 
-	processor.checkClipping = function(){
-			if( !this.clipping ){
-				return false;
-      }
-			if( ( this.lastClip + this.clipLag ) < window.performance.now() ){
-				this.clipping = false;
-      }
-			return this.clipping;
-		};
-
-	processor.shutdown = function(){
-			this.disconnect();
-			this.onaudioprocess = null;
-		};
 	return processor;
 }
 
 function volumeAudioProcess( event ) {
-	var buf = event.inputBuffer.getChannelData(0);
-  var bufLength = buf.length;
+	const buf = event.inputBuffer.getChannelData(0);
+  const bufLength = buf.length;
 	var sum = 0;
   var x;
 
 	// Do a root-mean-square on the samples: sum up the squares...
-  for( let i=0; i < bufLength ; i++ ){
+  for( let i = 0; i < bufLength ; i++ ){
   	x = buf[i];
-  	if( Math.abs(x) >= this.clipLevel ){
+  	if( Math.abs( x ) >= this.clipLevel ){
   		this.clipping = true;
+      this.lastClip = Date.now()
   	}
   	sum += x * x;
   }
 
   // ... then take the square root of the sum.
-  var rms =  Math.sqrt(sum / bufLength);
+  var rms = Math.sqrt( sum / bufLength );
 
   // Now smooth this out with the averaging factor applied
   // to the previous sample - take the max here because we
@@ -57,77 +40,108 @@ function volumeAudioProcess( event ) {
   this.volume = Math.max( rms , this.volume * this.averaging );
 }
 
-class RecordVoice extends React.PureComponent {
-  reader = new FileReader()
-  chunks = []
 
+/*
+the process is like this:
+1. get audio stream from mic
+2. clone the stream
+3. analysis on stream per 1 ms to count if user is speaking
+4. every 600ms collect one block
+5. in 3 , if no sound for 1000 ms , call merge block
+6. block will not be merged unless last block is pushed by stop()
+7. if not , this will call stop() , and with no latency , it will be called again
+8. and a new block with header will be called out with new data
+9.
+*/
+class RecordVoice extends React.PureComponent {
+  chunks = []
+  allClips = []
   lastVolume = 0
-  getAudio = ref => this.audio = ref
+  noSoundFor = 0
+
+  constructor( props ){
+    super( props );
+  }
 
   componentDidMount(){
     navigator.mediaDevices.getUserMedia({
       audio: true
     }).then( stream => {
-        this.stream = stream
-        this.mediaRecorder = new MediaRecorder( stream )
-        let audioCtx = new AudioContext();
-        let mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() )
-        this.meter = createAudioMeter( audioCtx )
-
-        mediaStreamSource.connect( this.meter )
-        this.mediaRecorder.ondataavailable = ev => {
-          this.chunks.push( ev.data )
-        }
-
+      this.mediaRecorder = new MediaRecorder( stream )
+      this.perpareStreamAnalysis( stream.clone() )
+      // this let me know the sound speaker makes every 1 ms
+      this.mediaRecorder.ondataavailable = this.dataProcess
+      // this gives me a blob
     }).catch( err => {
       console.log( err );
     })
-
-    setInterval( () => this.analysis() , 1 )
-    //this.reader.onloadend = () => {
-    //  const data = this.reader.result;
-    //  console.log( data );
-    //  const audioCtx = new AudioContext()
-    //  const source = audioCtx.createBufferSource();
-    //  const scriptNode = audioCtx.createScriptProcessor();
-
-    //  audioCtx.decodeAudioData( data , buffer => {
-    //    source.buffer = buffer;
-    //  })
-
-    //  source.connect( scriptNode );
-    //  scriptNode.connect( audioCtx.destination );
-    //  scriptNode.onaudioprocess = ev => {
-
-    //    const inputData = ev.inputBuffer.getChannelData( 0 );
-    //    for( let c= 0 ; c < ev.inputBuffer.numOfChannels ; c ++ ){
-    //      for( let sample = 0 ; sample < ev.inputBuffer.length ; sample++ ){
-    //        console.log( inputData[sample] );
-    //      }
-    //    }
-    //    source.buffer = null
-    //    scriptNode.onaudioprocess = null
-    //  }
-    //  source.start()
-    //}
   }
 
-  i = 0;
-  analysis( /*data*/ ){
-    //this.reader.readAsArrayBuffer( data );
-    //if( !this.meter ){
-    //  return
-    //}
-    //if( this.meter.volume < 10 ){
-    //  this.i++;
+  getAudio = ref => this.audio = ref
 
-    //}
-    //if( Math.abs( this.meter.volume - this.lastVolume ) > 10 ){
-      console.log( this.meter.volume );
-    //}
+  perpareStreamAnalysis = ( stream ) => {
+    const audioCtx = new AudioContext();
+    const mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() )
+    this.meter = createAudioMeter( audioCtx );
+    mediaStreamSource.connect( this.meter )
+    setInterval( this.streamAnalysis , 1 )
+  }
+
+  streamAnalysis = () => {
+    if( this.meter.volume <= 0.05 ){
+      this.noSoundFor++;
+      if( this.noSoundFor > 1000 ){
+        this.mergeRecords();
+      }
+    } else {
+      this.noSoundFor = 0;
+    }
+  }
+
+  onBlockEnd = () => {
+    this.mediaRecorder.requestData();
+    this.isLastBlockStop = false;
+  }
+
+  dataProcess = ( ev ) => {
+    /*
+    this will be called every 600ms with a start block , a data block or a end block
+    when merging , it must be start-data-data-....-data-end
+    so merge function must be excuted here
+    and mergeRecords is just a request
+    so , if requested , and last block is not a end block,
+    this function will immediately call this.stopReord
+    which implements the stop of the record and set a signal
+    which indicates last block is triggered as stop block
+    after merge , all flags are reset
+    if no merge request , this function just collect every new block
+
+    in a complete system, a merge request will be fired when user haven't
+    talk for 1000 ms
+    */
+    this.chunks.push( ev.data )
+    if( this.requestMerge ){
+      if( !this.isLastBlockStop ){
+        this.stopReord();
+      } else {
+        this.requestMerge = false;
+        this.startRecord();
+        this.isLastBlockStop = false;
+        var blob = new Blob( this.chunks , {
+          type: "audio/ogg; codecs=opus"
+        });
+        console.log( blob );
+        console.log( this.chunks )
+        this.chunks = [];
+        var audioURL = URL.createObjectURL( blob );
+        this.allClips.push( audioURL );
+        this.audio.src = audioURL;
+      }
+    }
   }
 
   startRecord = () => {
+    // this switch is for UI-control
     switch( this.mediaRecorder.state ){
       case "paused":
         this.mediaRecorder.resume();
@@ -135,39 +149,30 @@ class RecordVoice extends React.PureComponent {
       case "inactive":
         this.mediaRecorder.start();
         break;
+      default:
+        return;
     }
-    this.handle = setInterval( () => {
-      //if( this.i >= 600 ){
-      //  this.i = 0;
-      //  clearInterval( this.handle );
-      //  this.mergeRecords();
-      //  return;
-      //}
-      this.mediaRecorder.requestData();
-    } , 600 );
+    this.handle = setInterval( this.onBlockEnd , 600 );
   }
 
   stopReord = () => {
+    // this line is for UI-control
     if( this.mediaRecorder.state === "inactive" ){
       return
     }
     this.mediaRecorder.stop();
     clearInterval( this.handle );
+    this.isLastBlockStop = true;
   }
 
   mergeRecords = () => {
-    this.stopReord();
-    var blob = new Blob( this.chunks , {
-      type: "audio/ogg; codecs=opus"
-    });
-    console.log( blob );
-    console.log( this.chunks )
-    this.chunks = [];
-
-    var audioURL = URL.createObjectURL( blob );
-    this.audio.src = audioURL;
-    //this.analysis( blob );
-    this.startRecord();
+    /*
+    when this method is called
+    last chunk has benn pushed
+    and next chuck will be a start chucnk
+    */
+    this.requestMerge = true;
+    this.noSoundFor = 0;
   }
 
   render(){
