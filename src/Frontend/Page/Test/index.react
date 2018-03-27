@@ -5,13 +5,26 @@ import applyHOCs from "direct-core/applyHOCs";
 import makePage from "direct-core/makePage"
 
 import RecordVoice from "Connected/RecordVoice";
+import LoginForm from "Connected/UserAuth/LoginForm";
 
 //import { view as Login } from "Connected/UserAuth";
+
+
+
+//定义背景样式
+var sectionStyle = {
+  backgroundImage: 'url(' + 'bg_login.jpg' + ')' 
+};
+
 
 class TestPage extends React.PureComponent {
   render(){
     return (
-      <RecordVoice />
+    <div style={sectionStyle} > 
+    	<LoginForm />
+    	<img src="bg_login.jpg"/>
+    </div>
+     
     )
   }
 }

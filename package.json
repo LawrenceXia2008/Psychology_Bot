@@ -16,6 +16,7 @@
     "ajv": "^6.4.0",
     "direct": "^0.1.1",
     "direct-core": "^1.0.6",
+    "file-loader": "^1.1.11",
     "simple-direct": "^1.1.2"
   }
 }

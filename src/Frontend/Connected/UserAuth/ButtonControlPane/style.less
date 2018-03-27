@@ -14,28 +14,32 @@
   padding-right: 1%;
 
   .mainAction {
-    display: inline-flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 2;
-    max-width: 30%;
-    min-width: 10 * @big;
-    font-size: @big;
-    font-weight: bold;
-    background-color: @niceGrey;
+    position: absolute;
+    top:67%;
+    left:50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 30%;
+    font-size: @normal;
+    height: 7%;
+    line-height: 7%;
+    background-color: #6ece46;
+    border-radius: 50px;
+    border: none;
   }
 
   .additionalAction {
-    background-color: black;
-    display: inline-flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    max-width: 10%;
+   position: absolute;
+    top:82%;
+    left:50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 30%;
     font-size: @normal;
-    min-width: 5 * @normal;
-    flex-grow: 1;
-    margin-left: .5%;
+    height: 7%;
+    line-height: 7%;
+    background-color: #ff1744;
+    border-radius: 50px;
+    border: none;
   }
 }
