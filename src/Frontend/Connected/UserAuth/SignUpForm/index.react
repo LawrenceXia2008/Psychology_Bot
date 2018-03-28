@@ -5,6 +5,7 @@
 import React from 'react';
 import { FormGroup , ControlLabel , FormControl , Checkbox } from 'react-bootstrap';
 import ButtonControlPane from '../ButtonControlPane';
+import style from 'style';
 
 import { certRegExp , passwordRegExp } from 'regExp';
 
@@ -95,14 +96,16 @@ class SignUpForm extends React.PureComponent {
             controlId="userSignupUserid"
             validationState={certValidationState}
             onSubmit={this.onLogin}
+
           >
-            <ControlLabel>cert</ControlLabel>
+            
             <FormControl
               type="text"
               value={cert}
-              placeholder="your cert"
+              placeholder="输入用户名"
               onChange={this.inputUsername}
               onKeyDown={this.onKeyDown}
+              className={style.username}
             />
             <FormControl.Feedback />
             {
@@ -113,46 +116,49 @@ class SignUpForm extends React.PureComponent {
             controlId="userSignupPassword"
             validationState={passwordValidationState}
           >
-            <ControlLabel>password</ControlLabel>
+           
             <FormControl
               type="password"
               value={password}
-              placeholder="your password"
+              placeholder="输入密码"
               onChange={this.inputPassword}
               onKeyDown={this.onKeyDown}
+              className={style.pwd}
             />
             <FormControl.Feedback />
-            {
-              passwordPrompt
-            }
+            
           </FormGroup>
           <FormGroup
             controlId="userSignupCofirm"
             validationState={confirmValidationState}
           >
-            <ControlLabel>password confirm</ControlLabel>
+            
             <FormControl
               type="password"
               value={passwordConfirm}
-              placeholder="confirm your password"
+              placeholder="请再输入一次密码确认"
               onChange={this.inputConfirm}
               onKeyDown={this.onKeyDown}
+              className={style.pwdAgain}
             />
             <FormControl.Feedback />
             {
               confirmPrompt
             }
           </FormGroup>
-          <ButtonControlPane
+          <div class={style.btnPanel}>
+            <ButtonControlPane
             mainAction={{
               action: this.onSignUp,
-              text: "signup"
+              text: "注册"
             }}
             additionalActions={[{
               action: onCancel,
-              text: "cancel"
+              text: "取消"
             }]}
           />
+          </div>
+          
         </form>
       </div>
     );

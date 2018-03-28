@@ -2,27 +2,21 @@ import React from "react";
 
 import Button from "direct-core/UI/Button";
 
+import { connect } from "react-redux";
+
+import { bindActionCreators } from "redux";
+
+import * as actions from "actions";
+
 var processingTime = 0;
 
-/*
-the process is like this:
-1. get audio stream from mic
-2. clone the stream
-3. analysis on stream per 1 ms to count if user is speaking
-4. every 600ms collect one block
-5. in 3 , if no sound for 1000 ms , call merge block
-6. block will not be merged unless last block is pushed by stop()
-7. if not , this will call stop() , and with no latency , it will be called again
-8. and a new block with header will be called out with new data
-9.
-*/
 class AutoCatchAudio extends React.Component {
-  chunks = []
   allClips = []
-  lastVolume = 0
+  chunks = []
   noSoundFor = 0
   startTalk = false
   overAllProcessTime = 0
+  interval = 12 // 2 , 3 , 4 , 5
   state = {
     clips: []
   }
@@ -41,45 +35,49 @@ class AutoCatchAudio extends React.Component {
       this.perpareStreamAnalysis( stream.clone() )
       // this let me know the sound speaker makes every 1 ms
       this.mediaRecorder.ondataavailable = this.dataProcess
+      if( this.props.autoStart ){
+        this.startRecord();
+      }
       // this gives me a blob
     }).catch( err => {
       console.log( err );
     })
+    
   }
 
 
 
 
   perpareStreamAnalysis = ( stream ) => {
-    const audioCtx = new AudioContext();
+    const audioCtx = new AudioContext(undefined,undefined,this.props.sampleingRate);
     const mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() );
     var processor = audioCtx.createScriptProcessor();
 
-  	processor.onaudioprocess = ( event ) => {
-    	const buf = event.inputBuffer.getChannelData( 0 );
+    processor.onaudioprocess = ( event ) => {
+      const buf = event.inputBuffer.getChannelData( 0 );
       const length = buf.length;
-    	var sum = 0;
+      var sum = 0;
       var x;
       processingTime++;
       this.overAllProcessTime++;
-    	// Do a root-mean-square on the samples: sum up the squares...
+      // Do a root-mean-square on the samples: sum up the squares...
       for( let i = 0; i < length ; i++ ){
-      	x = buf[i];
-      	sum += x * x;
+        x = buf[i];
+        sum += x * x;
       }
 
       const rms = Math.sqrt( sum / length );
       processor.volume += rms;
     }
 
-  	processor.volume = 0;
+    processor.volume = 0;
     // no effect
 
     this.meter = processor;
 
     mediaStreamSource.connect( this.meter );
     processor.connect( audioCtx.destination );
-    setInterval( this.streamAnalysis , 10 )
+    setInterval( this.streamAnalysis , this.interval );
   }
 
   /*
@@ -87,35 +85,33 @@ class AutoCatchAudio extends React.Component {
   */
   streamAnalysis = () => {
     if( !this.overAllProcessTime ){
-      return
+      return;
     }
-    //console.log( this.startTalk , this.meter.volume / this.overAllProcessTime );
+    const overAllLevel = this.meter.volume / this.overAllProcessTime;
+    //console.log( overAllLevel , this.startTalk , this.noSoundFor );
     if( !this.startTalk ){
-      if( this.meter.volume / this.overAllProcessTime >= 0.05 ){
+      if( overAllLevel >= 0.05 ){
         this.startTalk = true;
       }
       this.overAllProcessTime = this.meter.volume = 0;
-      return
+      return;
     }
 
-    if( this.meter.volume / this.overAllProcessTime <= 0.05 ){
-      this.noSoundFor += 10;
+    if( overAllLevel <= 0.05 ){
+      this.noSoundFor += this.interval;
       if( this.noSoundFor > 1000 ){
         if( this.startTalk ){
-          this.mergeRecords();
+          if( this.mediaRecorder.state !== "inactive" ){
+            this.stopRecord();
+          }
           this.startTalk = false;
+          this.noSoundFor = 0;
         }
       }
     } else {
       this.noSoundFor = 0;
     }
-    this.overAllProcessTime = 1;
-    this.meter.volume = 0;
-  }
-
-  onBlockEnd = () => {
-    this.mediaRecorder.requestData();
-    this.isLastBlockStop = false;
+    this.overAllProcessTime = this.meter.volume = 0;
   }
 
   /*
@@ -134,88 +130,73 @@ class AutoCatchAudio extends React.Component {
   talk for 1000 ms
   */
   dataProcess = ( ev ) => {
-    this.chunks.push( ev.data )
-    if( this.requestMerge ){
+    console.log( this.startTalk )
+    if( this.startTalk ){
+      this.chunks.push( ev.data );
+    }
+    if( this.isFirstBlock ){
       if( !this.isLastBlockStop ){
-        this.stopReord();
-      } else {
-        this.requestMerge = false;
-        this.startRecord();
-        this.isLastBlockStop = false;
-        var blob = new Blob( this.chunks , {
-          type: "audio/ogg; codecs=opus"
-        });
-        this.chunks = [];
-        var audioURL = URL.createObjectURL( blob );
-        this.allClips.push( audioURL );
+        this.chunks.push( ev.data );
+        this.isFirstBlock = false;
+      }
+    }
+    if( this.isLastBlockStop ){
+      this.isLastBlockStop = false;
+      this.chunks.push( ev.data );
+      var blob = new Blob( this.chunks , {
+        type: "audio/wav"
+      });
+      var audioURL = URL.createObjectURL( blob );
+      this.allClips.push( audioURL );
+      this.chunks = [];
+      this.props.getClip({ blob , url: audioURL });
+      if( this.props.show ){
         this.audio.src = audioURL;
       }
+      this.noSoundFor = 0;
     }
   }
 
   startRecord = () => {
-    // this switch is for UI-control
-    switch( this.mediaRecorder.state ){
-      case "paused":
-        this.mediaRecorder.resume();
-        break;
-      case "inactive":
-        this.mediaRecorder.start();
-        break;
-      default:
-        return;
-    }
-    this.handle = setInterval( this.onBlockEnd , 600 );
+    this.mediaRecorder.start();
+    this.handle = setInterval( () => this.mediaRecorder.requestData() , 500 );
+    this.isFirstBlock = true;
   }
 
-  stopReord = () => {
-    // this line is for UI-control
-    if( this.mediaRecorder.state === "inactive" ){
-      return
-    }
-    this.mediaRecorder.stop();
-    clearInterval( this.handle );
+  stopRecord = () => {
     this.isLastBlockStop = true;
+    clearInterval( this.handle );
+    this.mediaRecorder.stop();
+    this.startRecord();
   }
 
-  mergeRecords = () => {
-    /*
-    when this method is called
-    last chunk has benn pushed
-    and next chuck will be a start chucnk
-    */
-    this.requestMerge = true;
-    this.noSoundFor = 0;
-  }
 
-  debug = () => {
+  updateAllClip = () => {
     this.setState({
       clips: this.allClips
-    })
-    console.log( processingTime );
+    });
   }
 
   render(){
+    if( !this.props.show ){
+      return null;
+    }
     return (
       <React.Fragment>
         <Button
           onClick={this.startRecord}
-          text="开始"
+          text="begin"
         />
         <Button
-          onClick={this.mergeRecords}
-          text="强制合成"
-        />
-        <Button
-          onClick={this.stopReord}
+          onClick={this.stopRecord}
           text="终止"
         />
         <Button
-          onClick={this.debug}
-          text="debug"
+          onClick={this.updateAllClip}
+          text="更新所有"
         />
         <div>
-          <span>Main audio</span>
+          <span>Last audio</span>
           <audio
             controls
             ref={this.getAudio}
@@ -231,8 +212,13 @@ class AutoCatchAudio extends React.Component {
           }
         </div>
       </React.Fragment>
-    )
+    );
   }
 };
 
-export default AutoCatchAudio;
+export default connect(
+  state => ({
+
+  }),
+  dispatch => bindActionCreators( actions , dispatch )
+)(AutoCatchAudio);

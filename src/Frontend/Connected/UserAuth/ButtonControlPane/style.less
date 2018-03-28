@@ -3,43 +3,39 @@
 @niceGrey: hsl( 220 , 13% , 18% );
 
 .container {
-
+  display: block;
+  position: relative;
   background-color: transparent;
-  display: flex;
   font-family: Arvo;
-  flex-direction: row;
-  justify-content: center;
-
-  padding-left: 1%;
-  padding-right: 1%;
-
+  text-align: center;
+}
   .mainAction {
-    position: absolute;
-    top:67%;
-    left:50%;
-    transform: translateX(-50%);
+    display: block;
     text-align: center;
     width: 30%;
     font-size: @normal;
-    height: 7%;
-    line-height: 7%;
+    height: 3.5rem;
     background-color: #6ece46;
     border-radius: 50px;
     border: none;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    
   }
 
   .additionalAction {
-   position: absolute;
-    top:82%;
-    left:50%;
-    transform: translateX(-50%);
+    margin-top: 2rem;
+    display: block;
     text-align: center;
     width: 30%;
     font-size: @normal;
-    height: 7%;
-    line-height: 7%;
+    height: 3.5rem;
     background-color: #ff1744;
     border-radius: 50px;
     border: none;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
   }
-}
+

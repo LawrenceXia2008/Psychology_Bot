@@ -17,6 +17,7 @@
     "direct": "^0.1.1",
     "direct-core": "^1.0.6",
     "file-loader": "^1.1.11",
+    "js-md5": "^0.7.3",
     "simple-direct": "^1.1.2"
   }
 }
