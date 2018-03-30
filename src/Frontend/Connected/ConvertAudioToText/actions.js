@@ -27,7 +27,36 @@ export const sendConvert = ({ audio }) => dispatch => {
 		return;
 	}
 	dispatch( sendConvertStart() );
-
+	//------------------------------------------------urlencode
+	function str2asc(strstr){ 
+		return ("0"+strstr.charCodeAt(0).toString(16)).slice(-2); 
+		} 
+	function asc2str(ascasc){ 
+		return String.fromCharCode(ascasc); 
+	} 
+	function UrlEncode(str){      
+   			var ret="";      
+   			var strSpecial="!\"#$%&'()*+,/:;<=>?[]^`{|}~%";      
+   			var tt= "";     
+ 
+   		for(var i=0;i<str.length;i++){      
+   		var chr = str.charAt(i);      
+    	 var c=str2asc(chr);      
+    	tt += chr+":"+c+"n";      
+    	if(parseInt("0x"+c) > 0x7f){      
+      	ret+="%"+c.slice(0,2)+"%"+c.slice(-2);      
+    	}else{      
+      if(chr==" ")      
+        ret+="+";      
+      else if(strSpecial.indexOf(chr)!=-1)      
+        ret+="%"+c.toString(16);      
+      else      
+        ret+=chr;      
+    }      
+   }      
+  	return ret;      
+  	}
+	//----------------------------------------------------
 	const reader = new FileReader();
 	reader.readAsDataURL( audio );
 	reader.onloadend = () => {
@@ -44,6 +73,7 @@ export const sendConvert = ({ audio }) => dispatch => {
 		const XCheckSum = md5( apiKey + currentTime + XParam );
  
 		console.log( audio , reader.result.slice( reader.result.indexOf(',') + 1, reader.result.length ) );
+		var resultURL=UrlEncode(reader.result.slice( reader.result.indexOf(',') + 1, reader.result.length ));
  
 		fetch( "/api/AudioToText" , {
 			method: "POST",
@@ -54,7 +84,7 @@ export const sendConvert = ({ audio }) => dispatch => {
 				"X-Param": XParam,
 				"X-CheckSum": XCheckSum
 			},
-			body: `audio=${reader.result.slice( reader.result.indexOf(',') + 1, reader.result.length )}`
+			body: resultURL
 		}).then( response => {
 			if( !response.ok ){
 				throw "network"

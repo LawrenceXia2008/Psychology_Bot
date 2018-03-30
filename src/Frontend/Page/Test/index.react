@@ -15,6 +15,7 @@ import { bindActionCreators } from "redux";
 import { actions as Convert } from "Connected/ConvertAudioToText";
 
 //import { view as Login } from "Connected/UserAuth";
+import style from "style"
 
 
 
@@ -29,6 +30,16 @@ var bgStyle = {
   transform: "translateX(-50%)"
 };
 
+var imgStyle={
+  height:'25%',
+  width:'25%',
+  boderRadius:"12.5%",
+  position:"absolute",
+  left:"50%",
+  top:"20%",
+  transform: "translateX(-50%)"
+}
+
 
 class TestPage extends React.Component {
 
@@ -40,7 +51,8 @@ class TestPage extends React.Component {
 
   render(){
     return (
-      <div style={loginStyle}> 
+      <div style={loginStyle}>
+        <img src="/static/img/welcome.jpg" className={style.imgStyle} />
     	 <LoginForm />
         <RecordVoice
           show
