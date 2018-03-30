@@ -9,6 +9,8 @@ import style from 'style';
 
 import { certRegExp , passwordRegExp } from 'regExp';
 
+
+
 class LoginForm extends React.PureComponent {
   static defaultProps = {
     initName: "",
@@ -79,11 +81,13 @@ class LoginForm extends React.PureComponent {
             validationState={certValidationState}
             onSubmit={this.onLogin}
           >
+          
+
             
             <FormControl
               type="text"
               value={cert}
-              placeholder="your cert"
+              placeholder="输入用户名"
               onChange={this.inputUsername}
               onKeyDown={this.onKeyDown}
               className={style.inputText}
@@ -101,7 +105,7 @@ class LoginForm extends React.PureComponent {
             <FormControl
               type="password"
               value={password}
-              placeholder="your password"
+              placeholder="输入密码"
               onChange={this.inputPassword}
               onKeyDown={this.onKeyDown}
                className={style.inputPassword}
@@ -111,9 +115,9 @@ class LoginForm extends React.PureComponent {
               passwordPrompt
             }
           </FormGroup>
-          <a href="#" class={style.forgetPwd}>忘记密码？</a>
-          
-          <ButtonControlPane
+          <a href="#" className={style.forgetPwd}>忘记密码？</a>
+          <div className={style.btnPanel}>
+            <ButtonControlPane
             mainAction={{
               action: this.onLogin,
               text: "登录"
@@ -123,6 +127,8 @@ class LoginForm extends React.PureComponent {
               text: "注册账号"
             }]}
           />
+          </div>
+          
         </form>
       </div>
     );

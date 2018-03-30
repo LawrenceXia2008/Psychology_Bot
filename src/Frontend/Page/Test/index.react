@@ -4,31 +4,74 @@ import applyHOCs from "direct-core/applyHOCs";
 
 import makePage from "direct-core/makePage"
 
-import RecordVoice from "Connected/RecordVoice";
+import { view as RecordVoice } from "Connected/RecordVoice";
+
 import LoginForm from "Connected/UserAuth/LoginForm";
 
+import { connect } from "react-redux";
+
+import { bindActionCreators } from "redux";
+
+import { actions as Convert } from "Connected/ConvertAudioToText";
+
 //import { view as Login } from "Connected/UserAuth";
+import style from "style"
 
 
 
 //定义背景样式
-var sectionStyle = {
-  backgroundImage: 'url(' + 'bg_login.jpg' + ')' 
+var loginStyle = {
+  background: 'url(/static/img/bg_login.jpg) no-repeat center top',
+  height:'100%'
+};
+var bgStyle = {
+  position:"absolute",
+  left:"50%",
+  transform: "translateX(-50%)"
 };
 
+var imgStyle={
+  height:'25%',
+  width:'25%',
+  boderRadius:"12.5%",
+  position:"absolute",
+  left:"50%",
+  top:"20%",
+  transform: "translateX(-50%)"
+}
 
-class TestPage extends React.PureComponent {
+
+class TestPage extends React.Component {
+
+  componentWillReceiveProps( nextProps ){
+    const { blobs } = nextProps;
+    const audio = blobs[blobs.length - 1];
+    this.props.sendConvert({ audio });
+  }
+
   render(){
     return (
-    <div style={sectionStyle} > 
-    	<LoginForm />
-    	<img src="bg_login.jpg"/>
-    </div>
+      <div style={loginStyle}>
+        <img src="/static/img/welcome.jpg" className={style.imgStyle} />
+    	 <LoginForm />
+        <RecordVoice
+          show
+          autoStart
+          samplingRate={16*1000}
+        />
+      </div>
      
     )
   }
 }
 
 export default applyHOCs([
-  makePage
+  makePage,
+  connect(
+    state => ({
+      blobs: state.Audio.blobs,
+      urls: state.Audio.urls
+    }),
+    dispatch => bindActionCreators( Convert , dispatch )
+  )
 ] , TestPage );
