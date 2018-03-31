@@ -8,6 +8,12 @@ import { bindActionCreators } from "redux";
 
 import * as actions from "actions";
 
+import bufferToWav from "audiobuffer-to-wav";
+
+const audioCtx = new AudioContext();
+
+const reader = new FileReader();
+
 var processingTime = 0;
 
 class AutoCatchAudio extends React.Component {
@@ -149,17 +155,31 @@ class AutoCatchAudio extends React.Component {
     }
     if( this.isLastBlockStop ){
       this.isLastBlockStop = false;
+      this.chunks.push( ev.data );
       var blob = new Blob( this.chunks , {
         type: "audio/webm"
       });
-      this.chunks.push( ev.data );
-      var audioURL = URL.createObjectURL( blob );
-      this.allClips.push( audioURL );
-      this.chunks = [];
-      this.props.getClip({ blob , url: audioURL });
-      if( this.props.show ){
-        this.audio.src = audioURL;
+
+
+      reader.onloadend = () => {
+        const arrayBuffer = reader.result;
+        audioCtx.decodeAudioData( arrayBuffer  , buffer => {
+          let wav = bufferToWav( buffer );
+          let blob = new Blob( [new DataView( wav )] , {
+           type: "audio/wav"
+          });
+          var audioURL = URL.createObjectURL( blob );
+          this.allClips.push( audioURL );
+          this.chunks = [];
+          this.props.getClip({ blob , url: audioURL });
+          if( this.props.show ){
+            this.audio.src = audioURL;
+          }
+        })
       }
+      
+      reader.readAsArrayBuffer( blob );
+      
       this.noSoundFor = 0;
     }
   }
