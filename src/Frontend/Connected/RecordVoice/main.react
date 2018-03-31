@@ -15,8 +15,10 @@ class AutoCatchAudio extends React.Component {
   chunks = []
   noSoundFor = 0
   startTalk = false
+  thresholdValue = 0.05
   overAllProcessTime = 0
   interval = 12 // 2 , 3 , 4 , 5
+  makeSilent = 1000
   state = {
     clips: []
   }
@@ -31,10 +33,12 @@ class AutoCatchAudio extends React.Component {
     navigator.mediaDevices.getUserMedia({
       audio: true
     }).then( stream => {
-      this.mediaRecorder = new MediaRecorder( stream )
-      this.perpareStreamAnalysis( stream.clone() )
+      this.mediaRecorder = new MediaRecorder( stream , {
+        mimeType: "audio/webm"
+      });
+      this.perpareStreamAnalysis( stream.clone() );
       // this let me know the sound speaker makes every 1 ms
-      this.mediaRecorder.ondataavailable = this.dataProcess
+      this.mediaRecorder.ondataavailable = this.dataProcess;
       if( this.props.autoStart ){
         this.startRecord();
       }
@@ -42,7 +46,7 @@ class AutoCatchAudio extends React.Component {
     }).catch( err => {
       console.log( err );
     })
-    
+
   }
 
 
@@ -90,16 +94,19 @@ class AutoCatchAudio extends React.Component {
     const overAllLevel = this.meter.volume / this.overAllProcessTime;
     //console.log( overAllLevel , this.startTalk , this.noSoundFor );
     if( !this.startTalk ){
-      if( overAllLevel >= 0.05 ){
+      if( overAllLevel >= this.thresholdValue ){
         this.startTalk = true;
+        this.startTime = Date.now()
       }
       this.overAllProcessTime = this.meter.volume = 0;
       return;
     }
 
-    if( overAllLevel <= 0.05 ){
-      this.noSoundFor += this.interval;
-      if( this.noSoundFor > 1000 ){
+    if( overAllLevel < this.thresholdValue ){
+      let tmp = Date.now();
+      this.noSoundFor += tmp - this.startTime;
+      this.startTime = tmp;
+      if( this.noSoundFor > this.makeSilent ){
         if( this.startTalk ){
           if( this.mediaRecorder.state !== "inactive" ){
             this.stopRecord();
@@ -142,10 +149,10 @@ class AutoCatchAudio extends React.Component {
     }
     if( this.isLastBlockStop ){
       this.isLastBlockStop = false;
-      this.chunks.push( ev.data );
       var blob = new Blob( this.chunks , {
-        type: "audio/wav"
+        type: "audio/webm"
       });
+      this.chunks.push( ev.data );
       var audioURL = URL.createObjectURL( blob );
       this.allClips.push( audioURL );
       this.chunks = [];
@@ -158,16 +165,18 @@ class AutoCatchAudio extends React.Component {
   }
 
   startRecord = () => {
+    this.isFirstBlock = true;
     this.mediaRecorder.start();
     this.handle = setInterval( () => this.mediaRecorder.requestData() , 500 );
-    this.isFirstBlock = true;
   }
 
-  stopRecord = () => {
+  stopRecord = ( restart = true ) => {
     this.isLastBlockStop = true;
     clearInterval( this.handle );
     this.mediaRecorder.stop();
-    this.startRecord();
+    if( restart ){
+      this.startRecord();
+    }
   }
 
 
@@ -188,7 +197,7 @@ class AutoCatchAudio extends React.Component {
           text="begin"
         />
         <Button
-          onClick={this.stopRecord}
+          onClick={() => this.stopRecord( false )}
           text="终止"
         />
         <Button

@@ -56,11 +56,11 @@ class TestPage extends React.Component {
     	 <LoginForm />
         <RecordVoice
           show
-          autoStart
+          autoStart={false}
           samplingRate={16*1000}
         />
       </div>
-     
+
     )
   }
 }
