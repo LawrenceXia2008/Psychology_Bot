@@ -53,6 +53,7 @@ class TestPage extends React.Component {
     return (
       <div style={loginStyle}>
         <img src="/static/img/welcome.jpg" className={style.imgStyle} />
+        <h1 className={style.xiaowei}>小微</h1>
     	 <LoginForm />
         <RecordVoice
           show

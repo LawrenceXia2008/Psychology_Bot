@@ -97,7 +97,8 @@ function UrlDecode(str){
 	};
 
 
-	const XParam = btoa( JSON.stringify(ParamJson) );
+	//const XParam = btoa( JSON.stringify(ParamJson) );
+	const XParam ="eyJhdWUiOiJyYXciLCJlbmdpbmVfdHlwZSI6InNtczE2ayJ9";
 	const XCheckSum = md5( apiKey + currentTime + XParam );
 
   reader.readAsDataURL( audio );
@@ -106,6 +107,7 @@ function UrlDecode(str){
     const base64 = reader.result;
     var result = base64.slice( base64.indexOf(',') + 1 , base64.length );
     result = UrlEncode( result );
+    result.replace('f','F');
     console.log( result );
 	   fetch( "/api/AudioToText" , {
 	    method: "POST",
