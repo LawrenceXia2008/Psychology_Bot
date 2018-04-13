@@ -44,8 +44,6 @@ class AutoCatchAudio extends React.Component {
         setTimeout( () => this.recognition.start() , 300 );
       }
     }
-
-    this.recognition.onend =
   }
 
   render(){
