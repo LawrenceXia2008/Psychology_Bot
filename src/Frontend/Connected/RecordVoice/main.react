@@ -27,8 +27,17 @@ class AutoCatchAudio extends React.Component {
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
     this.recognition.lang = "zh-CN";
+
+    const restart = () => {
+      this.timeout = setTimeout(
+        () => {
+          this.recognition.stop();
+          this.recognition.start();
+        }
+      )
+    };
+
     this.recognition.onresult = ev => {
-      console.log( ev.results );
       if( ev.results.length === 1 ){
         this.lastSentence = ev.results[0][0].transcript;
       } else {
@@ -37,21 +46,6 @@ class AutoCatchAudio extends React.Component {
       console.log( this.lastSentence );
     }
 
-    this.recognition.end = () => {
-      console.log("end");
-    }
-    this.recognition.onspeechend = () => {
-      console.log("speech");
-      console.log( this.lastSentence );
-    }
-    this.recognition.onsoundend = () => {
-      console.log("soundend");
-      console.log( this.lastSentence );
-    }
-    this.recognition.onaudioend = () => {
-      console.log("audioend");
-      console.log( this.lastSentence );
-    }
   }
 
   render(){
