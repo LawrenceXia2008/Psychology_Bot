@@ -43,7 +43,11 @@ function getTokenAndGetConverstation(){
 }
 
 (async function perpare() {
-  (await getTokenAndGetConverstation()).catch( () => {
+  var a = (await getTokenAndGetConverstation());
+  console.log( a );
+  a
+  .then( v => console.log( v ))
+  .catch( () => {
     perpare();
   });
 })();
