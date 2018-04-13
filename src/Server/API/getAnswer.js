@@ -58,7 +58,7 @@ module.exports = ({ res , req }) => {
         result => {
           _watermark = result.watermark;
           console.log( result );
-          res.send( result );
+          res.send( result.activities[1].text );
         }
       )
    },
