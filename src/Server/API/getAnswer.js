@@ -51,6 +51,7 @@ function getTokenAndGetConverstation(){
 
 
 module.exports = ({ res , req }) => {
+  console.log( req.body );
   client.sendMessage( _tokenObject , req.body ).subscribe(
     data => {
       var id = data.id;
