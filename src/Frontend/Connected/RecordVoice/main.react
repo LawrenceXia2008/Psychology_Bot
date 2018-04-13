@@ -47,8 +47,8 @@ class AutoCatchAudio extends React.Component {
         this.lastSentence = (ev.results[ev.results.length - 2] || [{}] )[0].transcript;
       }
       console.log( this.lastSentence );
+      restart();
     }
-    restart();
   }
 
   render(){
