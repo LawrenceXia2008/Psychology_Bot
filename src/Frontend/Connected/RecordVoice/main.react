@@ -23,6 +23,7 @@ class AutoCatchAudio extends React.Component {
   recognition = new SpeechRecognition()
 
   state = {}
+
   constructor( props ){
     super( props );
     this.recognition.continuous = true;
@@ -53,10 +54,9 @@ class AutoCatchAudio extends React.Component {
             }
           )
         });
-        console.log( res[0].transcript );
 
         this.recognition.stop();
-        setTimeout( () => this.recognition.start() , 300 );
+        setTimeout( () => this.recognition.start() , 800 );
       }
     }
   }
