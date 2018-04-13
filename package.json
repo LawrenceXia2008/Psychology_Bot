@@ -18,6 +18,8 @@
     "direct-core": "^1.1.0",
     "file-loader": "^1.1.11",
     "js-md5": "^0.7.3",
+    "request": "^2.85.0",
+    "rxjs": "^5.5.10",
     "simple-direct": "^1.1.6"
   }
 }
