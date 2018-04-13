@@ -36,7 +36,16 @@ class AutoCatchAudio extends React.Component {
       }
       console.log( this.lastSentence );
     }
+    this.recognition.onspeechend = () => {
+      console.log("speech");
+      console.log( this.lastSentence );
+    }
     this.recognition.onsoundend = () => {
+      console.log("soundend");
+      console.log( this.lastSentence );
+    }
+    this.recognition.onaudioend = () => {
+      console.log("audioend");
       console.log( this.lastSentence );
     }
   }
