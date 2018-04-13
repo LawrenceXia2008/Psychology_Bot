@@ -33,6 +33,7 @@ class AutoCatchAudio extends React.Component {
         () => {
           console.log( this.lastSentence );
           this.recognition.stop();
+          this.recognition.start();
         }
       , 1000 );
     };
