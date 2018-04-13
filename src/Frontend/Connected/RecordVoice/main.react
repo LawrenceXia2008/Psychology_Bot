@@ -28,20 +28,12 @@ class AutoCatchAudio extends React.Component {
     this.recognition.interimResults = true;
     this.recognition.lang = "zh-CN";
 
-    const restart = () => {
-      this.timeout = setTimeout(
-        () => {
-          console.log( this.lastSentence );
-          this.recognition.stop();
-        }
-        , 1000 );
-    };
-
     this.recognition.onresult = ev => {
-      for( let res of ev.results ){
-        if( res.isFinal ){
-          console.log( res[0] );
-        }
+      const length = ev.results.length;
+      const res = ev.results[length - 2] || ev.results[0];
+      if( res.isFinal ){
+        console.log( res[0] );
+        this.recognition.stop();
       }
     }
 
