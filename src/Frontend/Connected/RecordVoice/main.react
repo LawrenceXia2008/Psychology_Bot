@@ -32,7 +32,9 @@ class AutoCatchAudio extends React.Component {
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
-        console.log( JSON.stringify({ text: res[0].transcript }) );
+        this.setState({
+          said: res[0].transcript
+        });
         fetch( "/api/getAnswer", {
           method: "POST",
           headers: {
@@ -44,6 +46,9 @@ class AutoCatchAudio extends React.Component {
           response.json().then(
             json => {
               console.log( json );
+              this.setState({
+                response: json.activities[1].text
+              });
             }
           )
         });
@@ -56,12 +61,15 @@ class AutoCatchAudio extends React.Component {
   }
 
   render(){
+    const { response , said } = this.state;
     return (
       <div>
         <Button
           onClick={this.recognition.start.bind( this.recognition )}
           text="start"
         />
+        <div>You said:{said}</div>
+        <div>I say:{response}</div>
       </div>
     );
   }
