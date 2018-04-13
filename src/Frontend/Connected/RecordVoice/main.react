@@ -22,6 +22,7 @@ class AutoCatchAudio extends React.Component {
 
   recognition = new SpeechRecognition()
 
+  state = {}
   constructor( props ){
     super( props );
     this.recognition.continuous = true;
