@@ -32,7 +32,6 @@ class AutoCatchAudio extends React.Component {
       this.timeout = setTimeout(
         () => {
           this.recognition.stop();
-          this.recognition.start();
         }
       )
     };
@@ -49,6 +48,11 @@ class AutoCatchAudio extends React.Component {
       console.log( this.lastSentence );
       restart();
     }
+
+    this.recognition.onend = () => {
+      this.recognition.start();
+    }
+    
   }
 
   render(){
