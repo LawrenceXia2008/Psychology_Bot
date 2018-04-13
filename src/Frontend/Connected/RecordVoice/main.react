@@ -38,7 +38,6 @@ class AutoCatchAudio extends React.Component {
       }
     }
 
-    this.recognition.onend =
   }
 
   render(){
