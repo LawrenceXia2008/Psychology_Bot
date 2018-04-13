@@ -34,9 +34,17 @@ class AutoCatchAudio extends React.Component {
       if( res.isFinal ){
         fetch( "/api/getAnswer", {
           method: "POST",
-          body: res[0].transcript
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text: res[0].transcript })
         }).then( response => {
           console.log( response );
+          response.json().then(
+            json => {
+              console.log( json );
+            }
+          )
         });
         console.log( res[0].transcript );
 
