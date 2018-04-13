@@ -11,17 +11,8 @@ class IndexPage extends React.PureComponent {
     const { alert , openWindow , openMask , closeMask , history } = this.props;
     return (
       <React.Fragment>
-        <h1>Direct</h1>
-        <h2
-          style={{
-          textDecoration: "underline",
-          cursor: "pointer"
-          }}
-          onClick={() => history.push("/a/b/c/d/e/f/g")}
-        >
-        default 404 Page
-      </h2>
-      <Link to="/test">test</Link>
+        <h1>Psychology_Bot</h1>
+        <Link to="/test">test</Link>
       </React.Fragment>
     );
   }

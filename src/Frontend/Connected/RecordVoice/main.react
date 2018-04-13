@@ -16,231 +16,39 @@ const reader = new FileReader();
 
 var processingTime = 0;
 
-class AutoCatchAudio extends React.Component {
-  allClips = []
-  chunks = []
-  noSoundFor = 0
-  startTalk = false
-  thresholdValue = 0.05
-  overAllProcessTime = 0
-  interval = 12 // 2 , 3 , 4 , 5
-  makeSilent = 1000
-  state = {
-    clips: []
-  }
+const SpeechRecognition = webkitSpeechRecognition;
 
-  getAudio = ref => this.audio = ref
+class AutoCatchAudio extends React.Component {
+
+  recognition = new SpeechRecognition()
 
   constructor( props ){
     super( props );
-  }
-
-  componentDidMount(){
-    navigator.mediaDevices.getUserMedia({
-      audio: true
-    }).then( stream => {
-      this.mediaRecorder = new MediaRecorder( stream , {
-        mimeType: "audio/webm"
-      });
-      this.perpareStreamAnalysis( stream.clone() );
-      // this let me know the sound speaker makes every 1 ms
-      this.mediaRecorder.ondataavailable = this.dataProcess;
-      if( this.props.autoStart ){
-        this.startRecord();
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.lang = "zh-CN";
+    this.recognition.onresult = ev => {
+      console.log( ev.results );
+      if( ev.results.length === 1 ){
+        this.lastSentence = ev.results[0][0].transcript;
+      } else {
+        this.lastSentence = (ev.results[ev.results.length - 2] || [{}] )[0].transcript;
       }
-      // this gives me a blob
-    }).catch( err => {
-      console.log( err );
-    })
-
-  }
-
-
-
-
-  perpareStreamAnalysis = ( stream ) => {
-    const audioCtx = new AudioContext(undefined,undefined,this.props.sampleingRate);
-    const mediaStreamSource = audioCtx.createMediaStreamSource( stream.clone() );
-    var processor = audioCtx.createScriptProcessor();
-
-    processor.onaudioprocess = ( event ) => {
-      const buf = event.inputBuffer.getChannelData( 0 );
-      const length = buf.length;
-      var sum = 0;
-      var x;
-      processingTime++;
-      this.overAllProcessTime++;
-      // Do a root-mean-square on the samples: sum up the squares...
-      for( let i = 0; i < length ; i++ ){
-        x = buf[i];
-        sum += x * x;
-      }
-
-      const rms = Math.sqrt( sum / length );
-      processor.volume += rms;
+      console.log( this.lastSentence );
     }
-
-    processor.volume = 0;
-    // no effect
-
-    this.meter = processor;
-
-    mediaStreamSource.connect( this.meter );
-    processor.connect( audioCtx.destination );
-    setInterval( this.streamAnalysis , this.interval );
-  }
-
-  /*
-  called every 10ms
-  */
-  streamAnalysis = () => {
-    if( !this.overAllProcessTime ){
-      return;
+    this.recognition.onsoundend = () => {
+      console.log( this.lastSentence );
     }
-    const overAllLevel = this.meter.volume / this.overAllProcessTime;
-    //console.log( overAllLevel , this.startTalk , this.noSoundFor );
-    if( !this.startTalk ){
-      if( overAllLevel >= this.thresholdValue ){
-        this.startTalk = true;
-        this.startTime = Date.now()
-      }
-      this.overAllProcessTime = this.meter.volume = 0;
-      return;
-    }
-
-    if( overAllLevel < this.thresholdValue ){
-      let tmp = Date.now();
-      this.noSoundFor += tmp - this.startTime;
-      this.startTime = tmp;
-      if( this.noSoundFor > this.makeSilent ){
-        if( this.startTalk ){
-          if( this.mediaRecorder.state !== "inactive" ){
-            this.stopRecord();
-          }
-          this.startTalk = false;
-          this.noSoundFor = 0;
-        }
-      }
-    } else {
-      this.noSoundFor = 0;
-    }
-    this.overAllProcessTime = this.meter.volume = 0;
-  }
-
-  /*
-  this will be called every 600ms with a start block , a data block or a end block
-  when merging , it must be start-data-data-....-data-end
-  so merge function must be excuted here
-  and mergeRecords is just a request
-  so , if requested , and last block is not a end block,
-  this function will immediately call this.stopReord
-  which implements the stop of the record and set a signal
-  which indicates last block is triggered as stop block
-  after merge , all flags are reset
-  if no merge request , this function just collect every new block
-
-  in a complete system, a merge request will be fired when user haven't
-  talk for 1000 ms
-  */
-  dataProcess = ( ev ) => {
-    console.log( this.startTalk )
-    if( this.startTalk ){
-      this.chunks.push( ev.data );
-    }
-    if( this.isFirstBlock ){
-      if( !this.isLastBlockStop ){
-        this.chunks.push( ev.data );
-        this.isFirstBlock = false;
-      }
-    }
-    if( this.isLastBlockStop ){
-      this.isLastBlockStop = false;
-      this.chunks.push( ev.data );
-      var blob = new Blob( this.chunks , {
-        type: "audio/webm"
-      });
-
-
-      reader.onloadend = () => {
-        const arrayBuffer = reader.result;
-        audioCtx.decodeAudioData( arrayBuffer  , buffer => {
-          let wav = bufferToWav( buffer );
-          let blob = new Blob( [new DataView( wav )] , {
-           type: "audio/wav"
-          });
-          var audioURL = URL.createObjectURL( blob );
-          this.allClips.push( audioURL );
-          this.chunks = [];
-          this.props.getClip({ blob , url: audioURL });
-          if( this.props.show ){
-            this.audio.src = audioURL;
-          }
-        })
-      }
-      
-      reader.readAsArrayBuffer( blob );
-      
-      this.noSoundFor = 0;
-    }
-  }
-
-  startRecord = () => {
-    this.isFirstBlock = true;
-    this.mediaRecorder.start();
-    this.handle = setInterval( () => this.mediaRecorder.requestData() , 500 );
-  }
-
-  stopRecord = ( restart = true ) => {
-    this.isLastBlockStop = true;
-    clearInterval( this.handle );
-    this.mediaRecorder.stop();
-    if( restart ){
-      this.startRecord();
-    }
-  }
-
-
-  updateAllClip = () => {
-    this.setState({
-      clips: this.allClips
-    });
   }
 
   render(){
-    if( !this.props.show ){
-      return null;
-    }
     return (
-      <React.Fragment>
+      <div>
         <Button
-          onClick={this.startRecord}
-          text="begin"
+          onClick={this.recognition.start.bind( this.recognition )}
+          text="start"
         />
-        <Button
-          onClick={() => this.stopRecord( false )}
-          text="终止"
-        />
-        <Button
-          onClick={this.updateAllClip}
-          text="更新所有"
-        />
-        <div>
-          <span>Last audio</span>
-          <audio
-            controls
-            ref={this.getAudio}
-          />
-          {
-            this.state.clips.map( clip => (
-              <audio
-                key={clip}
-                controls
-                src={clip}
-              />
-            ))
-          }
-        </div>
-      </React.Fragment>
+      </div>
     );
   }
 };
