@@ -52,7 +52,13 @@ function getTokenAndGetConverstation(){
 
 module.exports = ({ res , req }) => {
   console.log( req.body.text );
-  client.sendMessage( _tokenObject , req.body ).subscribe(
+  client.sendMessage( _tokenObject , {
+    type: "message",
+    from: {
+      id: "user1"
+    },
+    text: req.body.text
+  } ).subscribe(
     data => {
       var id = data.id;
       client.getMessage( _tokenObject , _watermark ).subscribe(
