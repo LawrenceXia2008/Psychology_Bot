@@ -37,7 +37,10 @@ class AutoCatchAudio extends React.Component {
       )
     };
 
+    restart();
+
     this.recognition.onresult = ev => {
+      clearTimeout( this.timeout );
       if( ev.results.length === 1 ){
         this.lastSentence = ev.results[0][0].transcript;
       } else {
@@ -45,7 +48,7 @@ class AutoCatchAudio extends React.Component {
       }
       console.log( this.lastSentence );
     }
-
+    restart();
   }
 
   render(){
