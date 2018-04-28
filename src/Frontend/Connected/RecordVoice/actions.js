@@ -1,5 +1,6 @@
 import {
-	__getClip
+	__getClip,
+	__send
 } from "actionTypes";
 
 
@@ -11,3 +12,11 @@ export const getClip = ({ blob , url , id }) => ({
 	},
 	id
 });
+
+export const send = ({ response , said }) => ({
+	type: __send,
+	payload: {
+		response,
+		said
+	}
+})

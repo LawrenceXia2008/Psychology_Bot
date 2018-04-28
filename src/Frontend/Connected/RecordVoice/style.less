@@ -1,0 +1,95 @@
+/*
+By:szy
+2018.04.28
+*/
+
+.btnWrap{
+	position: relative;
+}
+
+
+.startBtn{
+	outline: none;
+	border:none;
+	height: 6rem;
+  padding-top: 1.5rem;
+	width: 6rem;
+  text-align: center;
+	border-radius: 144px;
+
+	background-color: #4AE14B;
+	position: absolute;
+	left: 26.8%;
+	transform: translateX(-50%);
+}
+.startBtn:hover{
+  background-color: #4DC54E;
+}
+.phoneIcon{
+  font-size: 3rem;
+  color: white;
+}
+.slashIcon{
+  font-size: 3rem;
+  color: white;
+}
+
+.stopBtn{
+	outline: none;
+	border:none;
+	height: 6rem;
+  padding-top: 1.5rem;
+  text-align: center;
+	width: 6rem;
+	border-radius: 144px;
+
+	background-color: #e64e43;
+	position: absolute;
+	left: 72.5%;
+	transform: translateX(-50%);
+}
+.stopBtn:hover{
+  background-color: #C7463D;
+}
+/*字体相关*/
+@font-face {
+  font-family: 'icomoon';
+  src:  url('/static/font/icomoon.eot?2izorf');
+  src:  url('/static/font/icomoon.eot?2izorf#iefix') format('embedded-opentype'),
+    url('/static/font/icomoon.ttf?2izorf') format('truetype'),
+    url('/static/font/icomoon.woff?2izorf') format('woff'),
+    url('/static/font/icomoon.svg?2izorf#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-mic:before {
+  content: "\e91e";
+}
+.icon-phone:before {
+  content: "\e942";
+}
+.icon-phone-hang-up:before {
+  content: "\e943";
+}
+.icon-pause2:before {
+  content: "\ea1d";
+}
+.icon-volume-medium:before {
+  content: "\ea27";
+}

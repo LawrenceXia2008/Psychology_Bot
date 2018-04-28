@@ -36,6 +36,8 @@ class LoginForm extends React.PureComponent {
       onToggleKeepLogin,
       keepLogin,
       onCancel,
+      a,
+      b,
       goSignUp
     } = this.props;
     const {
@@ -84,10 +86,7 @@ class LoginForm extends React.PureComponent {
             
             <FormControl
               type="text"
-              value={cert}
-              placeholder="输入用户名"
-              onChange={this.inputUsername}
-              onKeyDown={this.onKeyDown}
+              value={a}
               className={style.inputText}
             />
             <FormControl.Feedback />
@@ -102,11 +101,8 @@ class LoginForm extends React.PureComponent {
           
             <FormControl
               type="password"
-              value={password}
-              placeholder="输入密码"
-              onChange={this.inputPassword}
-              onKeyDown={this.onKeyDown}
-               className={style.inputPassword}
+              value={b}
+              className={style.inputPassword}
             />
             <FormControl.Feedback />
             {

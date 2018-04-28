@@ -42,13 +42,16 @@ function getTokenAndGetConverstation(){
   })
 }
 
-(async function perpare() {
+async function perpare() {
   await getTokenAndGetConverstation().catch(
     () => {
     perpare();
   })
-})();
+});
 
+perpare();
+
+setInterval( perpare , 25 * 60 * 1000 );
 
 module.exports = ({ res , req }) => {
   console.log( req.body.text );
