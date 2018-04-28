@@ -47,7 +47,7 @@ async function perpare() {
     () => {
     perpare();
   })
-});
+};
 
 perpare();
 

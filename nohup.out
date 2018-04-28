@@ -1,0 +1,70 @@
+
+> psychology_bot@1.0.0 server /root/Psychology_Bot
+> direct server
+
+/root/Psychology_Bot/src/Server/API/getAnswer.js:50
+});
+ ^
+
+SyntaxError: Unexpected token )
+    at createScript (vm.js:80:10)
+    at Object.runInThisContext (vm.js:152:10)
+    at Module._compile (module.js:605:28)
+    at Object.Module._extensions..js (module.js:652:10)
+    at Module.load (module.js:560:32)
+    at tryModuleLoad (module.js:503:12)
+    at Function.Module._load (module.js:495:3)
+    at Module.require (module.js:585:17)
+    at require (internal/module.js:11:18)
+    at requireAPI (/root/Psychology_Bot/src/Server/Config/routes.js:1:93)
+    at Object.<anonymous> (/root/Psychology_Bot/src/Server/Config/routes.js:8:10)
+    at Module._compile (module.js:641:30)
+    at Object.Module._extensions..js (module.js:652:10)
+    at Module.load (module.js:560:32)
+    at tryModuleLoad (module.js:503:12)
+    at Function.Module._load (module.js:495:3)
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! psychology_bot@1.0.0 server: `direct server`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the psychology_bot@1.0.0 server script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /root/.npm/_logs/2018-04-28T10_52_41_956Z-debug.log
+
+> psychology_bot@1.0.0 server /root/Psychology_Bot
+> direct server
+
+/root/Psychology_Bot/src/Server/API/getAnswer.js:50
+});
+ ^
+
+SyntaxError: Unexpected token )
+    at createScript (vm.js:80:10)
+    at Object.runInThisContext (vm.js:152:10)
+    at Module._compile (module.js:605:28)
+    at Object.Module._extensions..js (module.js:652:10)
+    at Module.load (module.js:560:32)
+    at tryModuleLoad (module.js:503:12)
+    at Function.Module._load (module.js:495:3)
+    at Module.require (module.js:585:17)
+    at require (internal/module.js:11:18)
+    at requireAPI (/root/Psychology_Bot/src/Server/Config/routes.js:1:93)
+    at Object.<anonymous> (/root/Psychology_Bot/src/Server/Config/routes.js:8:10)
+    at Module._compile (module.js:641:30)
+    at Object.Module._extensions..js (module.js:652:10)
+    at Module.load (module.js:560:32)
+    at tryModuleLoad (module.js:503:12)
+    at Function.Module._load (module.js:495:3)
+npm ERR! code ELIFECYCLE
+npm ERR! errno 1
+npm ERR! psychology_bot@1.0.0 server: `direct server`
+npm ERR! Exit status 1
+npm ERR! 
+npm ERR! Failed at the psychology_bot@1.0.0 server script.
+npm ERR! This is probably not a problem with npm. There is likely additional logging output above.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /root/.npm/_logs/2018-04-28T10_52_51_665Z-debug.log
