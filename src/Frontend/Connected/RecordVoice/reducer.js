@@ -1,10 +1,13 @@
 import {
-	__getClip
+	__getClip,
+	__send
 } from "actionTypes";
 
 export default ( state = {
 	blobs: [],
-	urls: []
+	urls: [],
+	said: "",
+	response: ""
 } , { type , payload , id } ) => {
 	const { blobs , urls } = state;
 	switch( type ){
@@ -17,6 +20,20 @@ export default ( state = {
 				blobs: newBlobs,
 				urls: newUrls
 			};
+		}
+		case __send: {
+			const { said , response } = payload;
+			if( said ){
+				return {
+					...state,
+					said
+				}
+			} else {
+				return {
+					...state,
+					response
+				}
+			}
 		}
 		default:
 			return state;

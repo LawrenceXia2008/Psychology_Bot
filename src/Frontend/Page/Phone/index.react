@@ -13,17 +13,15 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 import { actions as Convert } from "Connected/ConvertAudioToText";
+import style from "style";
 
 //import { view as Login } from "Connected/UserAuth";
-import style from "style"
+
 
 
 
 //定义背景样式
-var loginStyle = {
-  background: 'url(/static/img/bg_login.jpg) no-repeat center top',
-  height:'100%'
-};
+
 var bgStyle = {
   position:"absolute",
   left:"50%",
@@ -51,15 +49,19 @@ class TestPage extends React.Component {
 
   render(){
     return (
-      <div style={loginStyle}>
+      <div className={style.bg}>
         <img src="/static/img/welcome.jpg" className={style.imgStyle} />
-        <h1 className={style.xiaowei}>小微</h1>
-    	 <LoginForm a={this.props.said} b={this.props.response}/>
-        <RecordVoice
+        <h2 className={style.xiaowei}>小微</h2>
+        <div className={style.contactTime}><h1>00:01</h1></div>
+        <img className={style.bar} src="/static/img/bar.png"/>
+        <div className={style.phonePos}>
+          <RecordVoice
           show
           autoStart={false}
           samplingRate={16*1000}
         />
+        </div>
+        
       </div>
 
     )

@@ -9,6 +9,10 @@ import { bindActionCreators } from "redux";
 import * as actions from "actions";
 
 import bufferToWav from "audiobuffer-to-wav";
+import FontAwesomeIcon from '@fortawesome/react-fontawesome'
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone'
+import faSlash from '@fortawesome/fontawesome-free-solid/faPhoneSlash'
+import style from "style"
 
 const audioCtx = new AudioContext();
 
@@ -34,6 +38,9 @@ class AutoCatchAudio extends React.Component {
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
+        this.props.send({
+                said: res[0].transcript
+              })
         this.setState({
           said: res[0].transcript
         });
@@ -51,6 +58,9 @@ class AutoCatchAudio extends React.Component {
               this.setState({
                 response: json.activities[1].text
               });
+              this.props.send({
+                response: json.activities[1].text
+              })
             }
           )
         });
@@ -64,13 +74,23 @@ class AutoCatchAudio extends React.Component {
   render(){
     const { response , said } = this.state;
     return (
-      <div>
-        <Button
+      <div className={style.btnWrap}>
+        <div
           onClick={this.recognition.start.bind( this.recognition )}
-          text="start"
-        />
-        <div>You said:{said}</div>
-        <div>I say:{response}</div>
+          className={style.startBtn}
+          
+        >
+        <FontAwesomeIcon icon={faPhone} className={style.phoneIcon}/>
+        </div>
+
+        <div
+          onClick={this.recognition.stop.bind( this.recognition )}
+          className={style.stopBtn}
+        >
+        <FontAwesomeIcon icon={faSlash} className={style.slashIcon}/>
+        </div>
+        
+
       </div>
     );
   }
