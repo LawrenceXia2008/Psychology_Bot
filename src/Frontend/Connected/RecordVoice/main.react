@@ -8,12 +8,6 @@ import { bindActionCreators } from "redux";
 
 import * as actions from "actions";
 
-import bufferToWav from "audiobuffer-to-wav";
-
-const audioCtx = new AudioContext();
-
-const reader = new FileReader();
-
 var processingTime = 0;
 
 const SpeechRecognition = webkitSpeechRecognition;
