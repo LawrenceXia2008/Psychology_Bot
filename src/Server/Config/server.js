@@ -1,11 +1,11 @@
 const path = require("path")
 
 module.exports = {
-    https: false,
-    port: 81,
-    caFile: path.join( __dirname , "./ca-bundle.pem" ),
-    keyFile: path.join( __dirname , "./antinux_me.key" ),
-    certFile: path.join( __dirname , "./cert.pem" ),
+    https: true,
+    port: 443,
+    caFile: path.join( __dirname , "../SSL/ca-bundle.pem" ),
+    keyFile: path.join( __dirname , "../SSL/psyxwi.key" ),
+    certFile: path.join( __dirname , "../SSL/cert.pem" ),
     session: {
       secret: "Antinux",
       resave: true,

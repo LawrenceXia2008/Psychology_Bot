@@ -78,7 +78,7 @@ class AutoCatchAudio extends React.Component {
         <div
           onClick={this.recognition.start.bind( this.recognition )}
           className={style.startBtn}
-          
+
         >
         <FontAwesomeIcon icon={faPhone} className={style.phoneIcon}/>
         </div>
@@ -89,7 +89,7 @@ class AutoCatchAudio extends React.Component {
         >
         <FontAwesomeIcon icon={faSlash} className={style.slashIcon}/>
         </div>
-        
+
 
       </div>
     );
