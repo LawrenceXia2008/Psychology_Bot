@@ -2,9 +2,9 @@
 define('DEMO_CURL_VERBOSE', false);
 
 # 填写网页上申请的appkey 如 $apiKey="g8eBUMSokVB1BHGmgxxxxxx"
-$apiKey = "4E1BG9lTnlSeIf1NQFlrSq6h";
+$apiKey = "PWLuXQGtv395HlyvCg2rMCrj";
 # 填写网页上申请的APP SECRET 如 $secretKey="94dc99566550d87f8fa8ece112xxxxx"
-$secretKey = "544ca4657ba8002e3dea3ac2f5fdd241";
+$secretKey = "cff397c6dd1f15a44880068260fb71d5";
 
 # text 的内容为"欢迎使用百度语音合成"的urlencode,utf-8 编码
 # 可以百度搜索"urlencode"
@@ -114,6 +114,9 @@ if(curl_errno($ch))
 }
 curl_close($ch);
 
-$file = $g_has_error ? "result.txt" : "result.mp3";
+$publicDir = realpath( __DIR__ . "/../../../public/" );
+
+
+$file = $g_has_error ? "result.txt" : $publicDir."/result.mp3";
 file_put_contents($file, $data);
-echo "\n$file saved successed, please open it \n";
+echo $publicDir."result.mp3";
