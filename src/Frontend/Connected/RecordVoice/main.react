@@ -60,9 +60,18 @@ class AutoCatchAudio extends React.Component {
               });
               this.props.send({
                 response: json.activities[1].text
-              })
+              });
+              return json.activities[1].text;
             }
-          )
+          ).then( text => fetch(".api/textToVoice", {
+            method: "post",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              text
+            })
+          }).then( response => response.json()).then( url => this.setURl( url ) ))
         });
 
         this.recognition.stop();
@@ -81,6 +90,13 @@ class AutoCatchAudio extends React.Component {
     this.props.onEnd();
   }
 
+  getAudio = ref => this.audio = ref;
+
+  setURl = url => {
+    this.audio.src = url;
+    this.audio.play();
+  }
+  
   render(){
     const { response , said } = this.state;
     return (
@@ -92,7 +108,12 @@ class AutoCatchAudio extends React.Component {
         >
         <FontAwesomeIcon icon={faPhone} className={style.phoneIcon}/>
         </div>
-
+        <audio
+          ref={this.getAudio}
+          style={{
+            display: "none"
+          }}
+        />
         <div
           onClick={this.stop}
           className={style.stopBtn}

@@ -119,4 +119,4 @@ $publicDir = realpath( __DIR__ . "/../../../public/" );
 
 $file = $g_has_error ? "result.txt" : $publicDir."/result.mp3";
 file_put_contents($file, $data);
-echo $publicDir."result.mp3";
+echo "result.mp3";
