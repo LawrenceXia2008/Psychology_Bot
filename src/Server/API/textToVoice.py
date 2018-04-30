@@ -5,6 +5,8 @@ import hashlib
 import base64
 import struct
 import json
+import sys
+import os
 
 URL = "http://api.xfyun.cn/v1/service/v1/tts"
 AUE = "lame"
@@ -46,14 +48,18 @@ def writeFile(file, content):
         f.write(content)
     f.close()
 
-r = requests.post(URL,headers=getHeader(),data=getBody("科大讯飞是中国最大的智能语音技术提供商"))
+publicDir = "/".join( os.path.abspath( __file__ ).split("/")[0:-4] ) + "/public/"
+
+r = requests.post(URL,headers=getHeader(),data=getBody(sys.argv[1]))
 contentType = r.headers['Content-Type']
 if contentType == "audio/mpeg":
     sid = r.headers['sid']
+    filename = ""
     if AUE == "raw":
-        writeFile(sid+".wav", r.content)
+        filename = sid+".wav"
     else :
-        writeFile(sid+".mp3", r.content)
-    print "success, sid = " + sid
+        filename = sid+".mp3"
+        writeFile( publicDir + filename , r.content)
+    print filename
 else :
-    print r.text 
+    print r.text

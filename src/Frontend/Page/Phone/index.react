@@ -41,10 +41,25 @@ var imgStyle={
 
 class TestPage extends React.Component {
 
+  state = {
+    time: 0
+  }
+
   componentWillReceiveProps( nextProps ){
     const { blobs } = nextProps;
     const audio = blobs[blobs.length - 1];
     this.props.sendConvert({ audio });
+  }
+
+  startTick = () => {
+    this.handle = setInterval( () => this.setState({
+      time: this.state.time + 1
+    }), 1000 );
+  }
+
+  stopTick = () => {
+    clearInterval( this.handle );
+
   }
 
   render(){
@@ -52,16 +67,18 @@ class TestPage extends React.Component {
       <div className={style.bg}>
         <img src="/static/img/welcome.jpg" className={style.imgStyle} />
         <h2 className={style.xiaowei}>小微</h2>
-        <div className={style.contactTime}><h1>00:01</h1></div>
+        <div className={style.contactTime}><h1>{this.state.time}</h1></div>
         <img className={style.bar} src="/static/img/bar.png"/>
         <div className={style.phonePos}>
           <RecordVoice
           show
+          onStart={this.startTick}
+          onEnd={this.stopTick}
           autoStart={false}
           samplingRate={16*1000}
         />
         </div>
-        
+
       </div>
 
     )

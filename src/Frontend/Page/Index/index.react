@@ -12,7 +12,8 @@ class IndexPage extends React.PureComponent {
     return (
       <React.Fragment>
         <h1>Psychology_Bot</h1>
-        <Link to="/test">test</Link>
+        <Link to="/test">test</Link><br/>
+        <Link to="/phone">phone</Link>
       </React.Fragment>
     );
   }

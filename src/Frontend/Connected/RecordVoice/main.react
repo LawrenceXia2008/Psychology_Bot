@@ -71,12 +71,22 @@ class AutoCatchAudio extends React.Component {
     }
   }
 
+  start = () => {
+    this.recognition.start();
+    this.props.onStart();
+  }
+
+  stop = () => {
+    this.recognition.stop();
+    this.props.onEnd();
+  }
+
   render(){
     const { response , said } = this.state;
     return (
       <div className={style.btnWrap}>
         <div
-          onClick={this.recognition.start.bind( this.recognition )}
+          onClick={this.start}
           className={style.startBtn}
 
         >
@@ -84,7 +94,7 @@ class AutoCatchAudio extends React.Component {
         </div>
 
         <div
-          onClick={this.recognition.stop.bind( this.recognition )}
+          onClick={this.stop}
           className={style.stopBtn}
         >
         <FontAwesomeIcon icon={faSlash} className={style.slashIcon}/>
