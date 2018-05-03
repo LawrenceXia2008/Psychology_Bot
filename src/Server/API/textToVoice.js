@@ -7,6 +7,6 @@ module.exports = ({ req, res }) => {
   const { text } = req.body;
   console.log( "准备转换:" + text );
   stdout = execSync( `php ${phpFile} ${text}` );
-  console.log( stdout.toSting() );
+  console.log( stdout.toString() );
   res.send( stdout.toString() );
 }
