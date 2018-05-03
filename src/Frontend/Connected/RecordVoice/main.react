@@ -63,7 +63,7 @@ class AutoCatchAudio extends React.Component {
               });
               return json.activities[1].text;
             }
-          ).then( text => fetch(".api/textToVoice", {
+          ).then( text => fetch("/api/textToVoice", {
             method: "post",
             headers: {
               "Content-Type": "application/json"
@@ -96,7 +96,7 @@ class AutoCatchAudio extends React.Component {
     this.audio.src = url;
     this.audio.play();
   }
-  
+
   render(){
     const { response , said } = this.state;
     return (
