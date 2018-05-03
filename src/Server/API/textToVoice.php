@@ -11,7 +11,7 @@ $secretKey = "cff397c6dd1f15a44880068260fb71d5";
 $text = $argv[1];
 
 $text2 = iconv("UTF-8", "GBK", $text);
-echo mb_strlen($text2, "GBK");
+#echo mb_strlen($text2, "GBK");
 
 #发音人选择, 0为普通女声，1为普通男生，3为情感合成-度逍遥，4为情感合成-度丫丫，默认为普通女声
 $per = 0;
@@ -37,30 +37,30 @@ curl_setopt($ch, CURLOPT_VERBOSE, DEMO_CURL_VERBOSE);
 $res = curl_exec($ch);
 if(curl_errno($ch))
 {
-    print curl_error($ch);
+    #print curl_error($ch);
 }
 curl_close($ch);
 
-echo "Token URL response is " . $res . "\n";
+#echo "Token URL response is " . $res . "\n";
 $response = json_decode($res, true);
 
 if (!isset($response['access_token'])){
-	echo "ERROR TO OBTAIN TOKEN\n";
+	#echo "ERROR TO OBTAIN TOKEN\n";
 	exit(1);
 }
 if (!isset($response['scope'])){
-	echo "ERROR TO OBTAIN scopes\n";
+	#echo "ERROR TO OBTAIN scopes\n";
 	exit(2);
 }
 
 if (!in_array('audio_tts_post',explode(" ", $response['scope']))){
-	echo "DO NOT have tts permission\n";
+	#echo "DO NOT have tts permission\n";
 	// 请至网页上应用内开通语音合成权限
 	exit(3);
 }
 
 $token = $response['access_token'];
-echo "token = $token ; expireInSeconds: ${response['expires_in']}\n\n";
+#echo "token = $token ; expireInSeconds: ${response['expires_in']}\n\n";
 /** 公共模块获取token结束 */
 
 /** 拼接参数开始 **/
@@ -78,7 +78,7 @@ $params = array(
 );
 
 $url = 'http://tsn.baidu.com/text2audio?' . http_build_query($params);
-echo $url . "\n"; // 反馈请带上此url
+#echo $url . "\n"; // 反馈请带上此url
 
 /** 拼接参数结束 **/
 
@@ -99,7 +99,7 @@ function read_header($ch, $header){
 			if (strpos($comps[1], "mp3") > 0 ){
 				$g_has_error = false;
 			}else{
-				echo $header ." , has error \n";
+				#echo $header ." , has error \n";
 			}
 		}
 	}
@@ -109,7 +109,7 @@ curl_setopt($ch, CURLOPT_HEADERFUNCTION, 'read_header');
 $data = curl_exec($ch);
 if(curl_errno($ch))
 {
-    echo curl_error($ch);
+    #echo curl_error($ch);
 	exit(2);
 }
 curl_close($ch);
@@ -119,4 +119,4 @@ $publicDir = realpath( __DIR__ . "/../../../public/" );
 
 $file = $g_has_error ? "result.txt" : $publicDir."/result.mp3";
 file_put_contents($file, $data);
-echo "result.mp3";
+echo "/result.mp3";
