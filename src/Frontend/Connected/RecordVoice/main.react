@@ -71,7 +71,7 @@ class AutoCatchAudio extends React.Component {
             body: JSON.stringify({
               text
             })
-          }).then( response => response.json()).then( url => this.setURl( url ) ))
+          }).then( response => response.json()).then( json => this.setURl( json.url ) ))
         });
 
         this.recognition.stop();
