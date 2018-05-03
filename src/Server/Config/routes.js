@@ -1,6 +1,9 @@
 const requireAPI = ( api ) => require("../API/" + api );
 
 module.exports = {
+  "/textToVoice": {
+    api: requireAPI("textToVoice")
+  },
 	"/AudioToText": {
 		api: requireAPI("ConvertAudioToText")
 	},
