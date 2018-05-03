@@ -126,7 +126,8 @@ function generateRandomString($length = 10) {
     return $randomString;
 }
 
-$file = $g_has_error ? "result.txt" : $publicDir."/result.mp3".generateRandomString( 128 );
+$hash = generateRandomString( 128 );
+$file = $g_has_error ? "result.txt" : $publicDir."/result".$hash.".mp3";
 
 file_put_contents($file, $data);
-echo "/result.mp3";
+echo "/result".$hash.".mp3";
