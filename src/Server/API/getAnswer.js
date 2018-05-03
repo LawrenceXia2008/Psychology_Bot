@@ -51,7 +51,7 @@ async function perpare() {
 
 perpare();
 
-setInterval( perpare , 30 * 60 * 1000 + 1000 );
+setInterval( () => perpare(), 1800 );
 
 module.exports = ({ res , req }) => {
   console.log( req.body.text );
