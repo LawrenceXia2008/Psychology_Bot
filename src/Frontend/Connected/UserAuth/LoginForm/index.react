@@ -142,6 +142,7 @@ class LoginForm extends React.PureComponent {
       certValid,
       passwordValid
     });
+    window.location.href="/Phone";//跳转 by szy
   }
 
   onKeyDown = ev => {

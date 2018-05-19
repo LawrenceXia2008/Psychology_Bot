@@ -9,7 +9,7 @@ const Phone = asyncLoad( () => import("Page/Phone") );
 
 export default {
   "/": {
-    page: Index,
+    page: TestPage,
     exact: true
   },
   "/test": {
