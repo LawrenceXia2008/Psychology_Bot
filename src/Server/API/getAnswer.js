@@ -1,6 +1,6 @@
 var client = require("./directLine v3");
 
-var secret = "tH1doegR4Cg.cwA.0_I.i7ze5cFjB-YtUc_R1hl8SwbJbj250G9CaMuEYH8Y8uU";
+var secret = "QY1pXa35lEg.cwA.FEU.juhsR4ntvxSOW8HaexZc0GxoeerhTJNEF0Bja9MiOcI";
 var _tokenObject = 0;
 var _conversationWss;
 var _watermark = 0;
