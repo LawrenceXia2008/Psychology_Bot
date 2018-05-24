@@ -1,16 +1,25 @@
 import {
 	__getClip,
-	__send
+	__send,
+  __selectVoice__
 } from "actionTypes";
 
 export default ( state = {
 	blobs: [],
 	urls: [],
 	said: "",
-	response: ""
+	response: "",
+  voice: 3
 } , { type , payload , id } ) => {
 	const { blobs , urls } = state;
 	switch( type ){
+    case __selectVoice__: {
+      return {
+        ...state,
+        voice: payload.key
+      }
+      break;
+    };
 		case __getClip: {
 			let newBlobs = [...blobs];
 			let newUrls = [...urls];

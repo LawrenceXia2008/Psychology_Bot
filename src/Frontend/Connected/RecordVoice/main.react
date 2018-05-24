@@ -8,7 +8,6 @@ import { bindActionCreators } from "redux";
 
 import * as actions from "actions";
 
-import bufferToWav from "audiobuffer-to-wav";
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone'
 import faSlash from '@fortawesome/fontawesome-free-solid/faPhoneSlash'
@@ -35,12 +34,13 @@ class AutoCatchAudio extends React.Component {
     this.recognition.lang = "zh-CN";
 
     this.recognition.onresult = ev => {
+      const { voice } = this.state;
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
         this.props.send({
-                said: res[0].transcript
-              })
+          said: res[0].transcript
+        })
         this.setState({
           said: res[0].transcript
         });
@@ -51,10 +51,8 @@ class AutoCatchAudio extends React.Component {
           },
           body: JSON.stringify({ text: res[0].transcript })
         }).then( response => {
-          console.log( response );
           response.json().then(
             json => {
-              console.log( json );
               this.setState({
                 response: json.activities[1].text
               });
@@ -69,7 +67,8 @@ class AutoCatchAudio extends React.Component {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              text
+              text,
+              voice
             })
           }).then( response => response.json()).then( json => this.setURl( json.url ) ))
         });
@@ -92,24 +91,33 @@ class AutoCatchAudio extends React.Component {
 
   getAudio = ref => this.audio = ref;
 
+  continuePlay = $ => {
+    this.recognition.start();
+  }
+
   setURl = url => {
     this.audio.src = url;
     this.audio.play();
+    this.recognition.stop();
+  }
+
+  handleChange = ( $, key ) => {
+    this.props.selectVoice( key );
   }
 
   render(){
-    const { response , said } = this.state;
+    const { response, said } = this.state;
     return (
       <div className={style.btnWrap}>
         <div
           onClick={this.start}
           className={style.startBtn}
-
         >
-        <FontAwesomeIcon icon={faPhone} className={style.phoneIcon}/>
+          <FontAwesomeIcon icon={faPhone} className={style.phoneIcon}/>
         </div>
         <audio
           ref={this.getAudio}
+          onEnded={this.continuePlay}
           style={{
             display: "none"
           }}
@@ -118,18 +126,14 @@ class AutoCatchAudio extends React.Component {
           onClick={this.stop}
           className={style.stopBtn}
         >
-        <FontAwesomeIcon icon={faSlash} className={style.slashIcon}/>
+        <FontAwesomeIcon icon={faSlash} className={style.slashIcon} />
         </div>
-
-
       </div>
     );
   }
 };
 
 export default connect(
-  state => ({
-
-  }),
+  undefined,
   dispatch => bindActionCreators( actions , dispatch )
 )(AutoCatchAudio);

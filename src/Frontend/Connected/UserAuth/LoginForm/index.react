@@ -6,7 +6,7 @@ import React from 'react';
 import { FormGroup , ControlLabel , FormControl , Checkbox } from 'react-bootstrap';
 import ButtonControlPane from '../ButtonControlPane';
 import style from 'style';
-
+import { withRouter } from "react-router-dom";
 import { certRegExp , passwordRegExp } from 'regExp';
 
 
@@ -83,7 +83,7 @@ class LoginForm extends React.PureComponent {
             validationState={certValidationState}
             onSubmit={this.onLogin}
           >
-            
+
             <FormControl
               type="text"
               value={a}
@@ -98,7 +98,7 @@ class LoginForm extends React.PureComponent {
             controlId="userLoginPassword"
             validationState={passwordValidationState}
           >
-          
+
             <FormControl
               type="text"
               value={b}
@@ -110,7 +110,7 @@ class LoginForm extends React.PureComponent {
             }
           </FormGroup>
           <a href="#" class={style.forgetPwd}>忘记密码？</a>
-          <div class={style.btnPanel}>
+          <div className={style.btnPanel}>
             <ButtonControlPane
             mainAction={{
               action: this.onLogin,
@@ -122,27 +122,27 @@ class LoginForm extends React.PureComponent {
             }]}
           />
           </div>
-          
+
         </form>
       </div>
     );
   }
 
   onLogin = () => {
-    const { cert , password } = this.state;
-    const certValid = certRegExp.test( cert );
-    const passwordValid = passwordRegExp.test( password ) && password.length >= 8;
-    if( certValid && passwordValid ){
-      this.props.onLogin({
-        cert,
-        password
-      });
-    }
-    this.setState({
-      certValid,
-      passwordValid
-    });
-    window.location.href="/Phone";//跳转 by szy
+    //const { cert , password } = this.state;
+    //const certValid = certRegExp.test( cert );
+    //const passwordValid = passwordRegExp.test( password ) && password.length >= //8;
+    //if( certValid && passwordValid ){
+    //  this.props.onLogin({
+    //    cert,
+    //    password
+    //  });
+    //}
+    //this.setState({
+    //  certValid,
+    //  passwordValid
+    //});
+    this.props.history.push("/Phone");//跳转 by szy
   }
 
   onKeyDown = ev => {
@@ -168,4 +168,4 @@ class LoginForm extends React.PureComponent {
   }
 };
 
-export default LoginForm;
+export default withRouter( LoginForm );

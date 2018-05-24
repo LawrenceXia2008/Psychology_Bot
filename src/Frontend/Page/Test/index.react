@@ -12,8 +12,6 @@ import { connect } from "react-redux";
 
 import { bindActionCreators } from "redux";
 
-import { actions as Convert } from "Connected/ConvertAudioToText";
-
 //import { view as Login } from "Connected/UserAuth";
 import style from "style"
 
@@ -74,7 +72,6 @@ export default applyHOCs([
       urls: state.Audio.urls,
       said: state.Audio.said,
       response: state.Audio.response
-    }),
-    dispatch => bindActionCreators( Convert , dispatch )
+    })
   )
 ] , TestPage );

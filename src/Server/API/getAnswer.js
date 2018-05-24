@@ -19,13 +19,12 @@ function getTokenAndGetConverstation(){
     client.getTokenObject( secret ).subscribe(
       tokenObject => {
         _tokenObject = tokenObject;
-        console.log( "现在tokenObject为" + _tokenObject );
         flag = 1;
         //create Conversation
         client.initConversationStream( _tokenObject ).subscribe(
           message => {
             _conversationWss = message;
-            console.log(_conversationWss);
+
             reslove();
           },
           err => {
@@ -42,17 +41,19 @@ function getTokenAndGetConverstation(){
   })
 }
 
-async function perpare() {
-  await getTokenAndGetConverstation().catch(
-    () => {
-    perpare();
-
-  })
+async function perpare(){
+  await getTokenAndGetConverstation().catch( $ => perpare() );
 };
 
 perpare();
 
-setInterval( () => {perpare();_watermark = 0}, 29 * 60 * 1000 );//重置
+setInterval( () => {
+  _tokenObject = 0;
+  _conversationWss;
+  _watermark = 0;
+  flag = 0;
+  perpare();
+}, 26 * 60 * 1000 );//重置
 
 module.exports = ({ res , req }) => {
   console.log( req.body.text );
@@ -68,7 +69,6 @@ module.exports = ({ res , req }) => {
       client.getMessage( _tokenObject , _watermark ).subscribe(
         result => {
           _watermark = result.watermark;
-          console.log( result );
           res.send( result );
         }
       )

@@ -5,6 +5,7 @@ import applyHOCs from "direct-core/applyHOCs";
 import makePage from "direct-core/makePage"
 
 import { view as RecordVoice } from "Connected/RecordVoice";
+import { actions as Audio } from "Connected/RecordVoice";
 
 import LoginForm from "Connected/UserAuth/LoginForm";
 
@@ -12,13 +13,18 @@ import { connect } from "react-redux";
 
 import { bindActionCreators } from "redux";
 
-import { actions as Convert } from "Connected/ConvertAudioToText";
 import style from "style";
 
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+
+import {
+  blue300,
+  lightBlue300,
+  cyan500
+} from "material-ui/styles/colors";
+
 //import { view as Login } from "Connected/UserAuth";
-
-
-
 
 //定义背景样式
 
@@ -40,21 +46,12 @@ var imgStyle={
 
 
 class TestPage extends React.Component {
-  
+
   state = {
     time: 0,
-    formatTime : "00:00"
+    formatTime : "00:00",
+    voice: 3
   }
-
-  
-  
-  
-  componentWillReceiveProps( nextProps ){
-    const { blobs } = nextProps;
-    const audio = blobs[blobs.length - 1];
-    this.props.sendConvert({ audio });
-  }
-
 
   startTick = () => {
     this.handle = setInterval( () => {
@@ -67,12 +64,12 @@ class TestPage extends React.Component {
         formatMin = "0" + min;
       else
         formatMin = min;
-      
+
       if (second < 10)
         formatSec = "0" + second;
       else
         formatSec = second;
-  
+
       var formatTime;
       formatTime = formatMin + ":" + formatSec;
       this.setState({
@@ -92,23 +89,70 @@ class TestPage extends React.Component {
       });
   }
 
+  handleChange = ( $, key ) => {
+    this.props.selectVoice( key );
+    this.setState({
+      voice: key
+    });
+  }
+
   render(){
+    const { voice } = this.state;
     return (
       <div className={style.bg}>
         <img src="/static/img/welcome.jpg" className={style.imgStyle} />
-        <h2 className={style.xiaowei}>小微</h2>
-        <div className={style.contactTime}><h1>{this.state.formatTime}</h1></div>
+        <h2 className={style.xiaowei}>
+          {
+            (function(){
+              switch( voice ){
+                case 0:
+                  return "霸道学姐";
+                case 1:
+                  return "清纯学长";
+                case 2:
+                  return "性感大叔";
+                case 3:
+                  return "小薇";
+              }
+            })()
+          }
+        </h2>
+        <div
+          className={style.contactTime}
+        >
+          <h1>{this.state.formatTime}</h1>
+        </div>
         <img className={style.bar} src="/static/img/bar.png"/>
         <div className={style.phonePos}>
           <RecordVoice
-          show
-          onStart={this.startTick}
-          onEnd={this.stopTick}
-          autoStart={false}
-          samplingRate={16*1000}
-        />
+            show
+            onStart={this.startTick}
+            onEnd={this.stopTick}
+            autoStart={false}
+            samplingRate={16*1000}
+          />
         </div>
-
+        <div>
+          <SelectField
+            floatingLabelText="选择语音"
+            value={this.state.voice}
+            onChange={this.handleChange}
+            floatingLabelStyle={{
+              color: "white"
+            }}
+            hintStyle={{
+              color: "white"
+            }}
+            selectedMenuItemStyle={{
+              color: "white"
+            }}
+          >
+            <MenuItem value={0} primaryText="霸道学姐" />
+            <MenuItem value={1} primaryText="清纯学长" />
+            <MenuItem value={2} primaryText="性感大叔" />
+            <MenuItem value={3} primaryText="小薇" />
+          </SelectField>
+        </div>
       </div>
 
     )
@@ -119,11 +163,8 @@ export default applyHOCs([
   makePage,
   connect(
     state => ({
-      blobs: state.Audio.blobs,
-      urls: state.Audio.urls,
-      said: state.Audio.said,
-      response: state.Audio.response
+      voice: state.Audio.voice
     }),
-    dispatch => bindActionCreators( Convert , dispatch )
+    dispatch => bindActionCreators( Audio, dispatch )
   )
 ] , TestPage );
