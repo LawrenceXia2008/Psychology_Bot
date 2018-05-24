@@ -5,9 +5,7 @@ const phpFile = path.resolve( __dirname, "./textToVoice.php" );
 
 module.exports = ({ req, res }) => {
   const { text, voice } = req.body;
-  console.log( "准备转换:" + text );
   stdout = execSync( `php ${phpFile} ${text} ${voice}` );
-  console.log( stdout.toString() );
   res.send( {
     url: stdout.toString()
   });
