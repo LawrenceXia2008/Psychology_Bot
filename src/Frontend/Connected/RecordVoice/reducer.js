@@ -9,7 +9,7 @@ export default ( state = {
 	urls: [],
 	said: "",
 	response: "",
-  voice: 4
+  voice: 3
 } , { type , payload , id } ) => {
 	const { blobs , urls } = state;
 	switch( type ){
