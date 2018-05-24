@@ -41,12 +41,6 @@ var imgStyle={
 
 class TestPage extends React.Component {
 
-  componentWillReceiveProps( nextProps ){
-    const { blobs } = nextProps;
-    const audio = blobs[blobs.length - 1];
-    this.props.sendConvert({ audio });
-  }
-
   render(){
     return (
       <div style={loginStyle}>
