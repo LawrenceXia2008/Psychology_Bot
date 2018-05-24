@@ -109,7 +109,7 @@ class LoginForm extends React.PureComponent {
               passwordPrompt
             }
           </FormGroup>
-          <a href="#" class={style.forgetPwd}>忘记密码？</a>
+          <a href="#" className={style.forgetPwd}>忘记密码？</a>
           <div className={style.btnPanel}>
             <ButtonControlPane
             mainAction={{

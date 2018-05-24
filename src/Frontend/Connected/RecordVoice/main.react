@@ -34,7 +34,7 @@ class AutoCatchAudio extends React.Component {
     this.recognition.lang = "zh-CN";
 
     this.recognition.onresult = ev => {
-      const { voice } = this.state;
+      const { voice } = this.props;
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
@@ -68,7 +68,7 @@ class AutoCatchAudio extends React.Component {
             },
             body: JSON.stringify({
               text,
-              voice
+              voice: voice + 1
             })
           }).then( response => response.json()).then( json => this.setURl( json.url ) ))
         });
@@ -97,8 +97,8 @@ class AutoCatchAudio extends React.Component {
 
   setURl = url => {
     this.audio.src = url;
-    this.audio.play();
     this.recognition.stop();
+    this.audio.play();
   }
 
   handleChange = ( $, key ) => {
