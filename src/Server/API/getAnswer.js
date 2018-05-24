@@ -1,6 +1,6 @@
 var client = require("./directLine v3");
 
-var secret = "QY1pXa35lEg.cwA.FEU.juhsR4ntvxSOW8HaexZc0GxoeerhTJNEF0Bja9MiOcI";
+var secret = "lAcE3NKoPpc.cwA.JvU.-dpiqOP9-DRrKscdzvq0Efv4MCSeZQCuw2FInRPRSFg";
 var _tokenObject = 0;
 var _conversationWss;
 var _watermark = 0;
@@ -46,12 +46,13 @@ async function perpare() {
   await getTokenAndGetConverstation().catch(
     () => {
     perpare();
+
   })
 };
 
 perpare();
 
-setInterval( () => perpare(), 29 * 60 * 1000 );
+setInterval( () => {perpare();_watermark = 0}, 29 * 60 * 1000 );//重置
 
 module.exports = ({ res , req }) => {
   console.log( req.body.text );
