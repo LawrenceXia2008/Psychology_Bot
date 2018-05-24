@@ -34,6 +34,7 @@ class AutoCatchAudio extends React.Component {
     this.recognition.lang = "zh-CN";
 
     this.recognition.onresult = ev => {
+      const { voice } = this.props;
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
