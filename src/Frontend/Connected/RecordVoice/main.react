@@ -74,7 +74,7 @@ class AutoCatchAudio extends React.Component {
         });
 
         this.recognition.stop();
-        setTimeout( () => this.recognition.start() , 800 );
+        setTimeout( () => this.recognition.start(), 800 );
       }
     }
   }
@@ -92,13 +92,14 @@ class AutoCatchAudio extends React.Component {
   getAudio = ref => this.audio = ref;
 
   continuePlay = $ => {
+    this.audio.currentTime = 0;
     this.recognition.start();
   }
 
   setURl = url => {
     this.audio.src = url;
     this.recognition.stop();
-    this.audio.play();
+    setTimeout( () => this.audio.play(), 0 );
   }
 
   handleChange = ( $, key ) => {
