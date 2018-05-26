@@ -38,6 +38,7 @@ class AutoCatchAudio extends React.Component {
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
+        this.recognition.stop();
         this.props.send({
           said: res[0].transcript
         })
@@ -73,8 +74,6 @@ class AutoCatchAudio extends React.Component {
           }).then( response => response.json()).then( json => this.setURl( json.url ) ))
         });
 
-        this.recognition.stop();
-        this.reboot = setTimeout( () => this.recognition.start(), 800 );
       }
     }
   }
@@ -99,9 +98,7 @@ class AutoCatchAudio extends React.Component {
 
   setURl = url => {
     this.audio.src = url;
-    this.recognition.stop();
-    clearTimeout( this.reboot );
-    setTimeout( () => this.audio.play(), 0 );
+    this.audio.play();
   }
 
   handleChange = ( $, key ) => {
