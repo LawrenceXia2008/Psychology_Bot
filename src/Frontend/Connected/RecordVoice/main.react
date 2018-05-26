@@ -38,6 +38,9 @@ class AutoCatchAudio extends React.Component {
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
       if( res.isFinal ){
+        this.setState({
+          listening: false
+        });
         this.recognition.stop();
         this.props.send({
           said: res[0].transcript
@@ -81,6 +84,9 @@ class AutoCatchAudio extends React.Component {
   start = () => {
     this.recognition.start();
     this.props.onStart();
+    this.setState({
+      listening: true
+    });
   }
 
   stop = () => {
@@ -92,6 +98,9 @@ class AutoCatchAudio extends React.Component {
 
   continuePlay = $ => {
     this.recognition.start();
+    this.setState({
+      listening: true
+    });
   }
 
   setURl = url => {
@@ -104,9 +113,14 @@ class AutoCatchAudio extends React.Component {
   }
 
   render(){
-    const { response, said } = this.state;
+    const { response, said, listening } = this.state;
     return (
       <div className={style.btnWrap}>
+        {
+          listening ?
+            <div style={{color:"white"}}>机器人正在聆听...</div>
+          : null
+        }
         <div
           onClick={this.start}
           className={style.startBtn}
