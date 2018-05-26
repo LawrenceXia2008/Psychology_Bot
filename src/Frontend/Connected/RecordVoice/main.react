@@ -85,14 +85,12 @@ class AutoCatchAudio extends React.Component {
 
   stop = () => {
     this.recognition.stop();
-    clearTimeout( this.reboot );
     this.props.onEnd();
   }
 
   getAudio = ref => this.audio = ref;
 
   continuePlay = $ => {
-    this.audio.currentTime = 0;
     this.recognition.start();
   }
 
