@@ -2,11 +2,19 @@ const path = require("path");
 var execSync = require('child_process').execSync;
 
 const phpFile = path.resolve( __dirname, "./textToVoice.php" );
+const cache = {};
 
 module.exports = ({ req, res }) => {
   const { text, voice } = req.body;
-  stdout = execSync(`php ${phpFile} ${text} ${voice}`);
-  res.send( {
-    url: stdout.toString()
-  });
+  if( cache[text] ){
+    res.send({
+      url: cache[text]
+    });
+  } else {
+    stdout = execSync(`php ${phpFile} ${text} ${voice}`);
+    cache[text] = stdout;
+    res.send({
+      url: stdout.toString()
+    });
+  }
 }
