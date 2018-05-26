@@ -13,6 +13,7 @@ module.exports = ({ req, res }) => {
   } else {
     stdout = execSync(`php ${phpFile} ${text} ${voice}`);
     cache[text] = stdout;
+    console.log( cache );
     res.send({
       url: stdout.toString()
     });
