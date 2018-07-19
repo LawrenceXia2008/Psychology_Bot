@@ -4,9 +4,6 @@ module.exports = {
   "/textToVoice": {
     api: requireAPI("textToVoice")
   },
-	"/AudioToText": {
-		api: requireAPI("ConvertAudioToText")
-	},
   "/getAnswer": {
     api: requireAPI("getAnswer")
   },
