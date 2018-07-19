@@ -31,6 +31,7 @@ class AutoCatchAudio extends React.Component {
       this.recognition = new SpeechRecognition()
     } catch( e ){
       networkLogger.log( e );
+      console.log( e );
     }
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
