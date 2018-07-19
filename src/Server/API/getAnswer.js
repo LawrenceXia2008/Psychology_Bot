@@ -24,7 +24,6 @@ function getTokenAndGetConverstation(){
         client.initConversationStream( _tokenObject ).subscribe(
           message => {
             _conversationWss = message;
-
             reslove();
           },
           err => {
@@ -56,7 +55,7 @@ setInterval( () => {
 }, 26 * 60 * 1000 );//重置
 
 module.exports = ({ res , req }) => {
-  console.log( req.body.text );
+  console.log( "getAnswer api 收到：", req.body.text );
   client.sendMessage( _tokenObject , {
     type: "message",
     from: {
@@ -68,6 +67,7 @@ module.exports = ({ res , req }) => {
       var id = data.id;
       client.getMessage( _tokenObject , _watermark ).subscribe(
         result => {
+          console.log( "微软机器人回复:", result );
           _watermark = result.watermark;
           res.send( result );
         }

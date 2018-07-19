@@ -13,9 +13,9 @@ module.exports = ({ req, res }) => {
   } else {
     stdout = execSync(`php ${phpFile} ${text} ${voice}`);
     cache[text] = stdout.toString();
-    console.log( cache );
     res.send({
       url: stdout.toString()
     });
   }
+  console.log("已回复语音");
 }
