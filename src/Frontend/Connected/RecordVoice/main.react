@@ -42,6 +42,7 @@ class AutoCatchAudio extends React.Component {
       const { voice } = this.props;
       const length = ev.results.length;
       const res = ev.results[length - 2] || ev.results[0];
+      networkLogger.log( res );
       if( res.isFinal ){
         this.setState({
           listening: false
