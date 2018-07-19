@@ -29,6 +29,7 @@ class AutoCatchAudio extends React.Component {
     super( props );
     try {
       this.recognition = new SpeechRecognition()
+      console.log( this.recognition );
     } catch( e ){
       networkLogger.log( e );
       console.log( e );
@@ -87,6 +88,7 @@ class AutoCatchAudio extends React.Component {
 
   start = () => {
     this.recognition.start();
+    console.log("started");
     this.props.onStart();
     this.setState({
       listening: true
@@ -95,6 +97,7 @@ class AutoCatchAudio extends React.Component {
 
   stop = () => {
     this.recognition.stop();
+    console.log("stopped");
     this.props.onEnd();
   }
 
