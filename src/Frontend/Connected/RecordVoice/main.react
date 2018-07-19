@@ -13,7 +13,7 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone'
 import faSlash from '@fortawesome/fontawesome-free-solid/faPhoneSlash'
 import style from "style"
 
-const audioCtx = new AudioContext();
+import networkLogger from "Connected/networkLogger";
 
 const reader = new FileReader();
 
@@ -23,12 +23,15 @@ const SpeechRecognition = webkitSpeechRecognition;
 
 class AutoCatchAudio extends React.Component {
 
-  recognition = new SpeechRecognition()
-
   state = {}
 
   constructor( props ){
     super( props );
+    try {
+      this.recognition = new SpeechRecognition()
+    } catch( e ){
+      networkLogger.log( e );
+    }
     this.recognition.continuous = true;
     this.recognition.interimResults = true;
     this.recognition.lang = "zh-CN";

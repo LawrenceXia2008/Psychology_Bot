@@ -9,5 +9,8 @@ module.exports = {
 	},
   "/getAnswer": {
     api: requireAPI("getAnswer")
+  },
+  "/log": {
+    api: requireAPI("logger")
   }
 };
